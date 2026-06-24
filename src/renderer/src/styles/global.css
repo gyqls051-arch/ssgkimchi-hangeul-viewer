@@ -1,0 +1,442 @@
+:root {
+  --bg: #1e1f22;
+  --bg-elev: #2b2d31;
+  --bg-stage: #313338;
+  --border: #3a3c41;
+  --text: #e6e7ea;
+  --text-dim: #a8abb2;
+  --accent: #3b82f6;
+  --accent-hover: #2f6fe0;
+  --danger: #ef4444;
+  --radius: 8px;
+  --toolbar-h: 48px;
+  --font: -apple-system, "Segoe UI", "Malgun Gothic", "맑은 고딕", Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: rgba(59, 130, 246, 0.4);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font);
+  color: var(--text);
+  background: var(--bg);
+  overflow: hidden;
+}
+
+/* 기본은 텍스트 선택 가능(문서 내용 복사). UI chrome 만 선택 금지. */
+.toolbar,
+.empty,
+.pdf-toolbar,
+.hwp-toolbar,
+.docx-toolbar,
+.xlsx-tabs,
+.xlsx-banner,
+.pdf-thumbs,
+.dropzone__overlay,
+.dropzone__diag,
+.placeholder,
+.viewer-error,
+.loading {
+  user-select: none;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* ── Toolbar ─────────────────────────────── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  height: var(--toolbar-h);
+  padding: 0 12px;
+  gap: 12px;
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--border);
+  flex: 0 0 auto;
+}
+.toolbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.toolbar__logo {
+  font-size: 18px;
+}
+.toolbar__center {
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+.toolbar__file {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--text-dim);
+}
+.toolbar__filename {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 48vw;
+}
+.toolbar__actions {
+  flex: 0 0 auto;
+}
+
+/* ── Buttons / badges ────────────────────── */
+.btn {
+  font: inherit;
+  color: var(--text);
+  background: var(--bg-stage);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.btn:hover {
+  background: #3a3c41;
+}
+.btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.btn--primary:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+.btn--lg {
+  padding: 10px 22px;
+  font-size: 15px;
+}
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: #cfe0ff;
+  background: rgba(59, 130, 246, 0.18);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  border-radius: 5px;
+  padding: 2px 7px;
+  white-space: nowrap;
+}
+
+/* 공용 툴바 버튼 (PDF·HWP 등 모든 뷰어 공유) */
+.iconbtn {
+  font: inherit;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 5px 9px;
+  cursor: pointer;
+}
+.iconbtn:hover {
+  background: var(--bg-stage);
+}
+.iconbtn--active {
+  background: rgba(59, 130, 246, 0.22);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+.textbtn {
+  font: inherit;
+  font-size: 13px;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.textbtn:hover {
+  background: var(--bg-stage);
+}
+.textbtn--active {
+  background: rgba(59, 130, 246, 0.22);
+  border-color: rgba(59, 130, 246, 0.4);
+  color: #cfe0ff;
+}
+
+/* ── Stage / DropZone ────────────────────── */
+.dropzone {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+}
+.stage {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  background: var(--bg-stage);
+  display: flex;
+  flex-direction: column;
+}
+.dropzone__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(59, 130, 246, 0.12);
+  border: 2px dashed var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 50;
+}
+.dropzone__hint {
+  font-size: 18px;
+  font-weight: 600;
+  color: #cfe0ff;
+  background: var(--bg-elev);
+  padding: 14px 26px;
+  border-radius: var(--radius);
+}
+.dropzone__diag {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 60;
+  pointer-events: none;
+  max-width: 80vw;
+  font-size: 13px;
+  color: #ffe1a8;
+  background: rgba(40, 30, 10, 0.92);
+  border: 1px solid rgba(234, 160, 60, 0.5);
+  border-radius: 8px;
+  padding: 8px 14px;
+  text-align: center;
+  word-break: break-all;
+}
+
+/* ── Empty state ─────────────────────────── */
+.empty {
+  margin: auto;
+  text-align: center;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.empty__icon {
+  font-size: 64px;
+  opacity: 0.9;
+}
+.empty__title {
+  margin: 0;
+  font-size: 24px;
+}
+.empty__sub {
+  margin: 0;
+  color: var(--text-dim);
+}
+.empty__formats {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0;
+  margin-top: 12px;
+  justify-content: center;
+}
+.empty__format {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 16px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  min-width: 96px;
+}
+.empty__format-label {
+  font-weight: 600;
+}
+.empty__format-ext {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+/* ── Placeholder viewer ──────────────────── */
+.placeholder {
+  margin: auto;
+  text-align: center;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.placeholder__icon {
+  font-size: 56px;
+}
+.placeholder__name {
+  font-size: 18px;
+  font-weight: 600;
+  word-break: break-all;
+  max-width: 70vw;
+}
+.placeholder__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-dim);
+}
+.placeholder__msg {
+  color: var(--text-dim);
+  max-width: 460px;
+  line-height: 1.5;
+}
+
+/* ── Loading / errors ────────────────────── */
+.loading {
+  margin: auto;
+  color: var(--text-dim);
+  padding: 40px;
+}
+.viewer-error {
+  margin: auto;
+  text-align: center;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.viewer-error__icon {
+  font-size: 48px;
+}
+.viewer-error__title {
+  font-size: 18px;
+  font-weight: 600;
+}
+.viewer-error__detail {
+  color: var(--text-dim);
+  max-width: 520px;
+  word-break: break-word;
+}
+
+/* ── 최근 파일 ───────────────────────────── */
+.recent {
+  margin-top: 26px;
+  width: min(560px, 82vw);
+  text-align: left;
+}
+.recent__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.recent__title {
+  font-size: 13px;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+.recent__clear {
+  font: inherit;
+  font-size: 12px;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.recent__clear:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+.recent__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.recent__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: var(--text);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.recent__item:hover {
+  background: var(--bg-stage);
+}
+.recent__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── 인쇄: 앱 chrome 숨기고 문서 영역만 ───── */
+@media print {
+  .toolbar,
+  .pdf-toolbar,
+  .hwp-toolbar,
+  .docx-toolbar,
+  .xlsx-tabs,
+  .xlsx-banner,
+  .pptx-overlay,
+  .dropzone__overlay {
+    display: none !important;
+  }
+  html,
+  body,
+  #root,
+  .app,
+  .dropzone,
+  .stage,
+  .pdf-scroll,
+  .hwp-scroll,
+  .docx-scroll,
+  .xlsx-host,
+  .pptx-host {
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+}
+
+/* 스크롤바 (다크) */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-thumb {
+  background: #4a4d52;
+  border-radius: 6px;
+  border: 3px solid var(--bg-stage);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #5a5d62;
+}

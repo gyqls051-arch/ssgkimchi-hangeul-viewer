@@ -1,0 +1,33 @@
+# dependencies
+node_modules/
+
+# build output
+out/
+dist/
+release/
+*.tsbuildinfo
+
+# test artifacts
+test-results/
+playwright-report/
+
+# 생성된 정적 자산 (predev/prebuild 시 node_modules 에서 복사됨)
+src/renderer/public/pdfjs/
+
+# env / secrets
+.env
+.env.*
+!.env.example
+
+# logs
+*.log
+npm-debug.log*
+
+# editor / OS / tooling
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.claude/
+tests/fixtures/stress/

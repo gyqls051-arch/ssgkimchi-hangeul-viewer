@@ -1,0 +1,65 @@
+.docx {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.docx-toolbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 12px;
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--border);
+}
+.docx-toolbar__group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.docx-zoom {
+  min-width: 48px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.docx-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  background: #2b2d31;
+  padding: 20px 0;
+}
+.docx-host {
+  /* docx-preview 가 .docx-wrapper(페이지 배경/그림자)를 내부에 주입 */
+}
+
+.docx-status {
+  margin: 40px auto;
+  padding: 20px;
+  color: var(--text-dim);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+.docx-status__icon {
+  font-size: 40px;
+}
+.docx-status--error {
+  color: var(--text);
+}
+
+/* docx-preview 기본 래퍼를 다크 스테이지에 맞게 살짝 보정 */
+.docx-host .docx-wrapper {
+  background: transparent;
+  padding: 0;
+}
+.docx-host .docx-wrapper > section.docx {
+  margin: 0 auto 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+}

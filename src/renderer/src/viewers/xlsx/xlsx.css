@@ -1,0 +1,134 @@
+.xlsx {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--bg-stage);
+}
+
+.xlsx-banner {
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #ffd9a0;
+  background: rgba(234, 160, 60, 0.14);
+  border-bottom: 1px solid var(--border);
+}
+
+.xlsx-host {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  background: #fff;
+}
+
+/* ── 엑셀형 그리드 ──────────────────────── */
+.xlsx-grid {
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+  color: #1f2328;
+  background: #fff;
+  table-layout: fixed;
+}
+.xlsx-grid td,
+.xlsx-grid th {
+  border-right: 1px solid #d9dce1;
+  border-bottom: 1px solid #d9dce1;
+  padding: 2px 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.xlsx-grid td.xlsx-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 열 문자(A,B,C) — 상단 고정 */
+.xlsx-colhead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f1f3f5;
+  color: #57606a;
+  font-weight: 600;
+  text-align: center;
+  border-top: 1px solid #d9dce1;
+}
+/* 행 번호(1,2,3) — 좌측 고정 */
+.xlsx-rowhead {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: #f1f3f5;
+  color: #57606a;
+  font-weight: 600;
+  text-align: center;
+  width: 46px;
+  min-width: 46px;
+  border-left: 1px solid #d9dce1;
+}
+/* 좌상단 코너 — 양쪽 고정 */
+.xlsx-corner {
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  background: #e9ecef;
+  width: 46px;
+  min-width: 46px;
+  border-top: 1px solid #d9dce1;
+  border-left: 1px solid #d9dce1;
+}
+
+/* ── Sheet tabs (하단) ───────────────────── */
+.xlsx-tabs {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 2px;
+  padding: 4px 8px;
+  background: var(--bg-elev);
+  border-top: 1px solid var(--border);
+  overflow-x: auto;
+}
+.xlsx-tab {
+  font: inherit;
+  font-size: 13px;
+  color: var(--text-dim);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px 5px 0 0;
+  padding: 5px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.xlsx-tab:hover {
+  background: var(--bg-stage);
+  color: var(--text);
+}
+.xlsx-tab--active {
+  background: var(--bg-stage);
+  color: var(--text);
+  border-color: var(--border);
+  border-bottom-color: var(--bg-stage);
+}
+
+/* ── Status ──────────────────────────────── */
+.xlsx-status {
+  margin: auto;
+  padding: 40px;
+  color: var(--text-dim);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+.xlsx-status__icon {
+  font-size: 40px;
+}
+.xlsx-status--error {
+  color: var(--text);
+}

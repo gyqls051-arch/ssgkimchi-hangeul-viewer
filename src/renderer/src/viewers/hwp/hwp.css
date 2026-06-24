@@ -1,0 +1,135 @@
+.hwp {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+/* ── Toolbar ─────────────────────────────── */
+.hwp-toolbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 12px;
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.hwp-toolbar__group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.hwp-toolbar__total {
+  color: var(--text-dim);
+  font-size: 13px;
+}
+.hwp-pageinput {
+  width: 52px;
+  text-align: center;
+  font: inherit;
+  color: var(--text);
+  background: var(--bg-stage);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 6px;
+  -moz-appearance: textfield;
+}
+.hwp-pageinput::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+.hwp-zoom {
+  min-width: 48px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+/* ── Scroll / pages ──────────────────────── */
+.hwp-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-gutter: stable;
+  background: #1a1b1e;
+}
+.hwp-pages {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+}
+.hwp-page {
+  position: relative;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+.hwp-page__svg {
+  display: block;
+  /* 선택은 투명 텍스트 레이어로만 — SVG 글자 직접 선택(표에서 깨짐) 비활성화 */
+  user-select: none;
+}
+
+/* 투명 HTML 텍스트 레이어 — 글자별 SVG <text> 를 줄/표칸 단위로 묶어 선택/복사 정상화 */
+.hwp-textlayer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  line-height: 1;
+}
+.hwp-textlayer span {
+  position: absolute;
+  z-index: 1;
+  color: transparent;
+  white-space: pre;
+  cursor: text;
+  user-select: text;
+  transform-origin: 0 0;
+}
+/* 빈 여백 드래그 시 선택이 윗줄로 튀지 않게 (selecting 토글로 확장) */
+.hwp-textlayer .endOfContent {
+  display: block;
+  position: absolute;
+  inset: 100% 0 0;
+  z-index: 0;
+  cursor: default;
+  user-select: none;
+}
+.hwp-textlayer.selecting .endOfContent {
+  top: 0;
+}
+.hwp-textlayer ::selection {
+  background: rgba(59, 130, 246, 0.4);
+}
+.hwp-page__placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b9bcc2;
+  font-size: 13px;
+  background: repeating-linear-gradient(45deg, #f3f3f3, #f3f3f3 10px, #ececec 10px, #ececec 20px);
+}
+
+/* ── Status ──────────────────────────────── */
+.hwp-status {
+  margin: auto;
+  padding: 40px;
+  color: var(--text-dim);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+.hwp-status__icon {
+  font-size: 40px;
+}
+.hwp-status--error {
+  color: var(--text);
+}

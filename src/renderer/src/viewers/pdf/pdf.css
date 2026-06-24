@@ -1,0 +1,257 @@
+.pdf {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+/* ── Toolbar ─────────────────────────────── */
+.pdf-toolbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 12px;
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.pdf-toolbar__group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.pdf-toolbar__total {
+  color: var(--text-dim);
+  font-size: 13px;
+}
+.pdf-pageinput {
+  width: 52px;
+  text-align: center;
+  font: inherit;
+  color: var(--text);
+  background: var(--bg-stage);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 6px;
+  -moz-appearance: textfield;
+}
+.pdf-pageinput::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+.pdf-zoom {
+  min-width: 48px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+/* ── Search ──────────────────────────────── */
+.pdf-search {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.pdf-search__input {
+  font: inherit;
+  color: var(--text);
+  background: var(--bg-stage);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 10px;
+  width: 180px;
+}
+.pdf-search__count {
+  font-size: 12px;
+  color: var(--text-dim);
+  min-width: 44px;
+  text-align: center;
+}
+
+/* ── Body / scroll / pages ───────────────── */
+.pdf-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+}
+.pdf-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  /* 스크롤바 공간을 항상 확보 — 스크롤바 출현/소멸로 너비가 출렁여 fit-width 배율이
+     떨려서 텍스트레이어가 어긋나고 선택이 깜빡이던 문제 방지 */
+  scrollbar-gutter: stable;
+  background: #1a1b1e;
+}
+.pdf-pages {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+}
+.pdf-page {
+  position: relative;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+  /* flex 정렬 제거: 캔버스와 텍스트레이어가 (0,0) 기준으로 정확히 겹치게 */
+  line-height: 0;
+  max-width: none;
+}
+.pdf-page__canvas {
+  display: block;
+}
+
+/* PDF.js v6 텍스트 레이어 — 캔버스 위 투명 텍스트(선택/복사용).
+   핵심: v6 는 --total-scale-factor 를 사용한다(JS에서 viewport.scale 로 설정). */
+.textLayer {
+  position: absolute;
+  text-align: initial;
+  inset: 0;
+  overflow: clip;
+  opacity: 1;
+  line-height: 1;
+  letter-spacing: normal;
+  word-spacing: normal;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  transform-origin: 0 0;
+  caret-color: transparent;
+  z-index: 2;
+  --min-font-size: 1;
+  --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size));
+  --min-font-size-inv: calc(1 / var(--min-font-size));
+}
+.textLayer :is(span, br) {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+  user-select: text;
+}
+.textLayer > :not(.markedContent),
+.textLayer .markedContent span:not(.markedContent) {
+  z-index: 1;
+  --font-height: 0;
+  font-size: calc(var(--text-scale-factor) * var(--font-height));
+  --scale-x: 1;
+  --rotate: 0deg;
+  transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv));
+}
+.textLayer .markedContent {
+  display: contents;
+}
+.textLayer span[role='img'] {
+  user-select: none;
+  cursor: default;
+}
+/* 선택이 윗/아랫줄로 번지지 않게 (selecting 토글로 endOfContent 확장) */
+.textLayer .endOfContent {
+  display: block;
+  position: absolute;
+  inset: 100% 0 0;
+  z-index: 0;
+  cursor: default;
+  user-select: none;
+}
+.textLayer.selecting .endOfContent {
+  top: 0;
+}
+.textLayer ::selection {
+  background: rgba(59, 130, 246, 0.4);
+}
+
+/* 외부 링크 레이어 — 링크 영역만 클릭, 나머지는 아래 텍스트레이어로 통과(선택 유지) */
+.pdf-linkLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+.pdf-linkLayer a.pdf-link {
+  position: absolute;
+  pointer-events: auto;
+  cursor: pointer;
+  border-radius: 2px;
+}
+.pdf-linkLayer a.pdf-link:hover {
+  background: rgba(59, 130, 246, 0.18);
+  outline: 1px solid rgba(59, 130, 246, 0.5);
+}
+.pdf-page__placeholder {
+  color: #b9bcc2;
+  font-size: 13px;
+  background: repeating-linear-gradient(45deg, #f3f3f3, #f3f3f3 10px, #ececec 10px, #ececec 20px);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Thumbnails ──────────────────────────── */
+.pdf-thumbs {
+  flex: 0 0 168px;
+  overflow-y: auto;
+  background: var(--bg-elev);
+  border-right: 1px solid var(--border);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pdf-thumb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.pdf-thumb:hover {
+  background: var(--bg-stage);
+}
+.pdf-thumb--active {
+  border-color: var(--accent);
+  background: rgba(59, 130, 246, 0.12);
+}
+.pdf-thumb__canvas {
+  width: 130px;
+  height: auto;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+.pdf-thumb__placeholder {
+  width: 130px;
+  height: 168px;
+  background: var(--bg-stage);
+  border-radius: 3px;
+}
+.pdf-thumb__num {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+/* ── Status (loading / error) ────────────── */
+.pdf-status {
+  margin: auto;
+  padding: 40px;
+  color: var(--text-dim);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+.pdf-status__icon {
+  font-size: 40px;
+}
+.pdf-status--error {
+  color: var(--text);
+}

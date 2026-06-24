@@ -1,0 +1,43 @@
+.pptx {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  background: #1a1b1e;
+}
+
+.pptx-host {
+  height: 100%;
+  overflow: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/* pptx-preview 가 만든 각 슬라이드에 그림자/배경 보정 */
+.pptx-host > * {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  background: #fff;
+  flex: 0 0 auto;
+}
+
+.pptx-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--text-dim);
+  background: #1a1b1e;
+  text-align: center;
+  padding: 40px;
+}
+.pptx-overlay--error {
+  color: var(--text);
+}
+.pptx-overlay__icon {
+  font-size: 40px;
+}

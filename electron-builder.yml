@@ -1,0 +1,76 @@
+appId: com.ssgkimchi.hangeulviewer
+productName: 싹싹김치 한글뷰어
+copyright: Copyright © 2026 싹싹김치
+
+# GitHub Releases 자동 게시 (CI에서 electron-builder --publish always)
+publish:
+  provider: github
+  owner: gyqls051-arch
+  repo: ssgkimchi-hangeul-viewer
+  releaseType: release
+
+directories:
+  output: release
+  buildResources: resources
+
+# 설치파일 최대 압축
+compression: maximum
+
+# 불필요한 로케일 pak 제거 (한국어 + 영어만) — ~46MB 절감
+electronLanguages:
+  - ko
+  - en-US
+
+# asar 패킹. out/renderer 자산(wasm/worker/cmaps)은 app:// 핸들러가 asar 내부에서 읽는다.
+# node_modules 제외: 렌더러 의존성은 out/renderer 로 번들됐고, main/preload 는
+# electron+node 내장만 require 하므로 런타임에 node_modules 가 전혀 필요 없다 (~115MB 절감).
+files:
+  - out/**/*
+  - package.json
+  - '!node_modules/**/*'
+asarUnpack: []
+
+# Windows 대상
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: resources/icon.ico
+  # 더블클릭 파일 연결
+  fileAssociations:
+    - ext: hwp
+      name: 한글 문서
+      description: 한글 문서
+      role: Viewer
+    - ext: hwpx
+      name: 한글 문서(HWPX)
+      description: 한글 문서(HWPX)
+      role: Viewer
+    - ext: pdf
+      name: PDF 문서
+      description: PDF 문서
+      role: Viewer
+    - ext: docx
+      name: Word 문서
+      description: Word 문서
+      role: Viewer
+    - ext: xlsx
+      name: Excel 문서
+      description: Excel 문서
+      role: Viewer
+    - ext: pptx
+      name: PowerPoint 문서
+      description: PowerPoint 문서
+      role: Viewer
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  allowElevation: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: 싹싹김치 한글뷰어
+  # 파일 연결은 사용자가 직접 선택할 수 있게(기본 강제 연결 안 함)
+  artifactName: ${productName}-${version}-setup.${ext}
