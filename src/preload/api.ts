@@ -43,6 +43,10 @@ export interface ViewerApi {
   openRecent(path: string): Promise<void>
   /** 최근 목록 비우기 */
   clearRecent(): Promise<void>
+  /** 메인이 "종료 확인 팝업을 띄우라"고 알릴 때 호출되는 콜백 등록. @returns 해제 함수 */
+  onShowExitDialog(cb: () => void): () => void
+  /** 종료 확인 모달에서 "종료" 선택 → 실제 종료 진행 */
+  confirmExit(): void
   /** 호스트 플랫폼 (예: "win32") */
   readonly platform: string
 }

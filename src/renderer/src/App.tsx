@@ -3,6 +3,8 @@ import Toolbar from './shell/Toolbar'
 import DropZone from './shell/DropZone'
 import EmptyState from './shell/EmptyState'
 import ErrorBoundary from './shell/ErrorBoundary'
+import StatusBar from './shell/StatusBar'
+import ExitDialog from './shell/ExitDialog'
 import { resolveViewer } from './viewers/registry'
 import type { DocInput, ViewerEntry } from './viewers/types'
 import { createLogger } from './lib/logger'
@@ -107,6 +109,8 @@ export default function App() {
           )}
         </main>
       </DropZone>
+      <StatusBar />
+      <ExitDialog />
     </div>
   )
 }

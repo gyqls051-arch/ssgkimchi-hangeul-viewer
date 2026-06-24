@@ -42,6 +42,7 @@ for (const file of files) {
   const [content, error] = selectorsFor(ext)
   const env = { ...process.env }
   delete env.ELECTRON_RUN_AS_NODE
+  env.SSGKIMCHI_SKIP_EXIT_CONFIRM = '1' // 종료 확인 팝업 끔 (app.close 가 즉시 닫히도록)
   const userData = mkdtempSync(join(tmpdir(), 'ssgkimchi-stress-'))
   const app = await electron.launch({
     executablePath: exe,

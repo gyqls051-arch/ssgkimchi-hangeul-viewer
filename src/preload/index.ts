@@ -24,6 +24,13 @@ const api: ViewerApi = {
   openRecent: (path: string): Promise<void> => ipcRenderer.invoke('recent:open', path),
   clearRecent: (): Promise<void> => ipcRenderer.invoke('recent:clear'),
 
+  onShowExitDialog: (cb: () => void): (() => void) => {
+    const listener = (): void => cb()
+    ipcRenderer.on('show-exit-dialog', listener)
+    return () => ipcRenderer.removeListener('show-exit-dialog', listener)
+  },
+  confirmExit: (): void => ipcRenderer.send('exit:confirm'),
+
   platform: process.platform
 }
 

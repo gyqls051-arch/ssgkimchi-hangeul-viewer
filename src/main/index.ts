@@ -14,6 +14,13 @@ import {
 
 const isDev = !app.isPackaged
 
+// 종료 확인 팝업(배너): 설치본에서 기본 활성. 개발/E2E 에선 끔(닫기 테스트 방해 방지).
+//   - 개발 미리보기로 켜기:        SSGKIMCHI_EXIT_CONFIRM=1
+//   - 패키지 스모크 스크립트에서 끄기: SSGKIMCHI_SKIP_EXIT_CONFIRM=1
+const exitConfirmEnabled =
+  (app.isPackaged || !!process.env['SSGKIMCHI_EXIT_CONFIRM']) &&
+  !process.env['SSGKIMCHI_SKIP_EXIT_CONFIRM']
+
 // app:// 스킴은 app 'ready' 이전에 등록해야 한다 (모듈 로드 시점)
 registerAppProtocolScheme()
 
@@ -27,6 +34,7 @@ process.on('unhandledRejection', (reason) => {
 
 let mainWindow: BrowserWindow | null = null
 let rendererReady = false
+let exitConfirmed = false
 const pendingFiles: string[] = []
 
 /** argv에서 문서 경로들을 추출 (지원 확장자 + 실제 존재하는 파일만, 다중 선택 지원) */
@@ -107,17 +115,25 @@ function createWindow(state: WindowState): void {
   mainWindow.once('ready-to-show', () => mainWindow?.show())
 
   // 창 크기/위치/최대화 상태를 닫기 직전에 동기 저장 (종료 레이스로 미저장 방지)
-  mainWindow.on('close', () => {
-    if (!mainWindow || mainWindow.isMinimized()) return
-    const bounds = mainWindow.getNormalBounds()
-    if (bounds.width < 200 || bounds.height < 200) return
-    saveWindowStateSync({
-      width: bounds.width,
-      height: bounds.height,
-      x: bounds.x,
-      y: bounds.y,
-      maximized: mainWindow.isMaximized()
-    })
+  mainWindow.on('close', (e) => {
+    if (mainWindow && !mainWindow.isMinimized()) {
+      const bounds = mainWindow.getNormalBounds()
+      if (bounds.width >= 200 && bounds.height >= 200) {
+        saveWindowStateSync({
+          width: bounds.width,
+          height: bounds.height,
+          x: bounds.x,
+          y: bounds.y,
+          maximized: mainWindow.isMaximized()
+        })
+      }
+    }
+    // 종료 확인 팝업(배너) — 처음 닫기 시도를 가로채 렌더러 모달을 띄운다.
+    // "종료" 선택 시 exit:confirm → exitConfirmed=true → destroy 로 실제 종료.
+    if (exitConfirmEnabled && !exitConfirmed && mainWindow && !mainWindow.webContents.isDestroyed()) {
+      e.preventDefault()
+      mainWindow.webContents.send('show-exit-dialog')
+    }
   })
 
   // 모든 로드 시작 시 준비상태 리셋 — 렌더러가 리스너 부착 후 'renderer-ready'로 다시 알린다
@@ -189,6 +205,12 @@ if (!gotLock) {
       rendererReady = true
       flushPending()
     }
+  })
+
+  // 종료 확인 모달에서 "종료" 선택 → 가로채기 해제하고 실제 종료
+  ipcMain.on('exit:confirm', () => {
+    exitConfirmed = true
+    mainWindow?.destroy()
   })
 
   app.whenReady().then(async () => {

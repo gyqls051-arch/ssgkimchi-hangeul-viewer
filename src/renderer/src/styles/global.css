@@ -37,6 +37,8 @@ body {
 
 /* 기본은 텍스트 선택 가능(문서 내용 복사). UI chrome 만 선택 금지. */
 .toolbar,
+.statusbar,
+.modal,
 .empty,
 .pdf-toolbar,
 .hwp-toolbar,
@@ -398,9 +400,89 @@ body {
   white-space: nowrap;
 }
 
+/* ── 하단 상시 배너 바 ───────────────────── */
+.statusbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 8px;
+  background: var(--bg-elev);
+  border-top: 1px solid var(--border);
+}
+.statusbar__banner {
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 3px 6px;
+  cursor: pointer;
+}
+.statusbar__banner:hover {
+  background: var(--bg-stage);
+}
+.statusbar__img {
+  display: block;
+  height: 22px;
+  width: auto;
+}
+
+/* ── 종료 확인 모달 (배너 포함) ───────────── */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal__panel {
+  width: min(420px, 86vw);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+.modal__banner {
+  display: block;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.12s;
+}
+.modal__banner:hover {
+  border-color: var(--accent);
+}
+.modal__banner-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.modal__title {
+  margin: 0;
+  font-size: 16px;
+  text-align: center;
+}
+.modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 /* ── 인쇄: 앱 chrome 숨기고 문서 영역만 ───── */
 @media print {
   .toolbar,
+  .statusbar,
+  .modal,
   .pdf-toolbar,
   .hwp-toolbar,
   .docx-toolbar,
