@@ -154,7 +154,10 @@ export function useLazyPageCanvas(
                   safeHref = null
                 }
                 if (!safeHref) continue
-                const r = viewport.convertToViewportRectangle(a.rect)
+                // pdfjs 6.1에서 convertToViewportRectangle 제거 → 두 꼭짓점 변환으로 등가 계산
+                const [rx1, ry1] = viewport.convertToViewportPoint(a.rect[0], a.rect[1])
+                const [rx2, ry2] = viewport.convertToViewportPoint(a.rect[2], a.rect[3])
+                const r = [rx1, ry1, rx2, ry2]
                 const x = Math.min(r[0], r[2])
                 const y = Math.min(r[1], r[3])
                 const link = document.createElement('a')

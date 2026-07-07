@@ -168,7 +168,7 @@ export default function HwpPage({
 
     // 3.5) 표 감지 → 열 키 함수. left 분포에 큰 x-간격(폭의 12%↑)이 있으면 2열+ 표로 봄.
     //      일반 문서는 들여쓰기 간격<12%라 1열(colOf=0)로 묶여 읽는 순서 유지.
-    let colOf = (_x: number): number => 0
+    let colOf: (x: number) => number = () => 0
     if (segData.length > 4) {
       const sortedLefts = segData.map((s) => s.left).sort((a, b) => a - b)
       const colGap = base.width * 0.12

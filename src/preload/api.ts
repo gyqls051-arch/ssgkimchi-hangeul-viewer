@@ -4,6 +4,9 @@
  * 여기엔 electron import가 없어야 한다 — 렌더러 타입체크에 안전하게 포함되도록.
  */
 
+/** 문서 크기 상한 (메인 readDoc 검증 + 렌더러 드롭 폴백이 공유) */
+export const MAX_DOC_BYTES = 300 * 1024 * 1024
+
 /** 메인 프로세스가 디스크에서 읽어 렌더러로 넘기는 문서 한 건 */
 export interface OpenedFile {
   /** 파일 이름 (경로 제외) */
@@ -35,12 +38,18 @@ export interface ViewerApi {
   onPrint(cb: () => void): () => void
   /** open-file 리스너 부착 완료를 메인에 알린다 (큐된 파일 전송 트리거) */
   notifyReady(): void
+  /**
+   * 드롭된 File의 OS 경로를 얻어 메인 프로세스 열기 경로(검증+최근목록)로 위임한다.
+   * 진짜 드래그된 파일만 경로가 나온다(렌더러가 합성한 File은 불가 → 임의 경로 주입 차단).
+   * @returns 경로를 얻어 위임했으면 true, 경로 없는 File(압축/첨부 드래그 등)이면 false
+   */
+  openDroppedFile(file: File): boolean
   /** 문서 내 외부 링크(http/https)를 기본 브라우저로 연다 */
   openExternal(url: string): void
   /** 최근 연 파일 목록 */
   listRecent(): Promise<RecentItem[]>
-  /** 최근 목록의 파일을 연다 (목록에 있는 경로만 허용). */
-  openRecent(path: string): Promise<void>
+  /** 최근 목록의 파일을 연다 (목록에 있는 경로만 허용). @returns 열기 성공 여부 */
+  openRecent(path: string): Promise<boolean>
   /** 최근 목록 비우기 */
   clearRecent(): Promise<void>
   /** 메인이 "종료 확인 팝업을 띄우라"고 알릴 때 호출되는 콜백 등록. @returns 해제 함수 */

@@ -4,7 +4,6 @@ import wasmUrl from '@rhwp/core/rhwp_bg.wasm?url'
 
 declare global {
   // rhwp 가 문단 레이아웃 시 호출하는 텍스트 폭 측정 콜백 (필수)
-  // eslint-disable-next-line no-var
   var measureTextWidth: ((font: string, text: string) => number) | undefined
 }
 

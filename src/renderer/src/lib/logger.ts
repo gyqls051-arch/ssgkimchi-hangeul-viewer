@@ -10,7 +10,6 @@ const isDev = import.meta.env.DEV
 function emit(level: Level, scope: string, msg: string, ...rest: unknown[]): void {
   if (!isDev && (level === 'debug' || level === 'info')) return
   const line = `[${scope}] ${msg}`
-  // eslint-disable-next-line no-console
   console[level === 'debug' ? 'log' : level](line, ...rest)
 }
 

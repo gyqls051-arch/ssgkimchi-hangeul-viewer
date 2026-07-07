@@ -13,31 +13,33 @@ const FILTERS: Electron.FileFilter[] = [
 ]
 
 /**
- * 모든 열기 경로(다이얼로그·메뉴·파일연결·최근목록)는 결국 이 함수로 모여
+ * 모든 열기 경로(다이얼로그·메뉴·파일연결·최근목록·드롭)는 결국 이 함수로 모여
  * 렌더러에는 단일 'open-file' 이벤트로만 전달된다.
+ * @returns 읽기·전송 성공 여부
  */
-function emitOpenFile(win: BrowserWindow, path: string): void {
-  readDoc(path)
-    .then((file) => {
-      if (win.isDestroyed()) return
-      win.webContents.send('open-file', file)
-      void addRecent({
-        path,
-        name: basename(path),
-        ext: extname(path).toLowerCase(),
-        openedAt: Date.now()
-      })
+async function emitOpenFile(win: BrowserWindow, path: string): Promise<boolean> {
+  try {
+    const file = await readDoc(path)
+    if (win.isDestroyed()) return false
+    win.webContents.send('open-file', file)
+    void addRecent({
+      path,
+      name: basename(path),
+      ext: extname(path).toLowerCase(),
+      openedAt: Date.now()
     })
-    .catch((err: unknown) => {
-      // 최근목록의 죽은 경로(이동/삭제)는 제거
-      void removeRecent(path)
-      dialog.showErrorBox('열기 실패', err instanceof Error ? err.message : String(err))
-    })
+    return true
+  } catch (err: unknown) {
+    // 최근목록의 죽은 경로(이동/삭제)는 제거
+    void removeRecent(path)
+    dialog.showErrorBox('열기 실패', err instanceof Error ? err.message : String(err))
+    return false
+  }
 }
 
 /** 파일 연결(더블클릭)·명령행 인자로 들어온 경로 열기 */
 export function openPath(win: BrowserWindow, path: string): void {
-  emitOpenFile(win, path)
+  void emitOpenFile(win, path)
 }
 
 /** 열기 다이얼로그 → 선택 시 'open-file' 전송 */
@@ -60,15 +62,25 @@ export function registerIpc(): void {
 
   ipcMain.handle('recent:list', () => getRecent())
 
-  ipcMain.handle('recent:open', async (event, path: unknown) => {
-    if (typeof path !== 'string') return
+  ipcMain.handle('recent:open', async (event, path: unknown): Promise<boolean> => {
+    if (typeof path !== 'string') return false
     // 렌더러가 임의 경로를 열지 못하도록 최근목록에 있는 경로만 허용
-    if (!(await isKnownRecent(path))) return
+    if (!(await isKnownRecent(path))) return false
     const win = BrowserWindow.fromWebContents(event.sender)
-    if (win) emitOpenFile(win, path)
+    return win ? emitOpenFile(win, path) : false
   })
 
   ipcMain.handle('recent:clear', () => clearRecent())
+
+  // 드롭 파일 열기 — preload 가 webUtils.getPathForFile 로 얻은 경로만 이 채널로 들어온다.
+  // 렌더러는 ipcRenderer 직접 접근이 불가(sandbox+contextIsolation)하고, 합성 File 은
+  // 경로가 '' 라 preload 가 거른다 → 임의 경로 주입 불가. readDoc 이 확장자 화이트리스트·
+  // 정규파일·크기 검증을 다시 수행하므로 문서 이외 파일은 어차피 읽히지 않는다.
+  ipcMain.on('drop:open', (event, path: unknown) => {
+    if (typeof path !== 'string') return
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (win) void emitOpenFile(win, path)
+  })
 
   // 문서 내 외부 링크 열기 — http/https 만 허용
   ipcMain.on('open-external', (_event, url: unknown) => {

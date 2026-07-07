@@ -110,7 +110,7 @@ export default function XlsxViewer({ doc }: ViewerProps) {
     }
   }, [doc])
 
-  const sheetNames = wb?.SheetNames ?? []
+  const sheetNames = useMemo(() => wb?.SheetNames ?? [], [wb])
 
   useEffect(() => {
     if (wb) log.info(`XLSX 준비: ${wb.SheetNames.length}시트`)

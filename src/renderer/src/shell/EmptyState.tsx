@@ -34,10 +34,10 @@ export default function EmptyState({ onOpen }: Props) {
   useEffect(() => refresh(), [refresh])
 
   const openRecent = useCallback(
-    (path: string) => {
-      void window.api.openRecent(path)
-      // 죽은 경로면 메인이 목록에서 제거하므로 잠시 후 새로고침
-      setTimeout(refresh, 400)
+    async (path: string) => {
+      const ok = await window.api.openRecent(path)
+      // 죽은 경로(이동/삭제)면 메인이 목록에서 제거한 뒤 false 를 준다 → 즉시 갱신
+      if (!ok) refresh()
     },
     [refresh]
   )
@@ -80,7 +80,7 @@ export default function EmptyState({ onOpen }: Props) {
               <li key={r.path}>
                 <button
                   className="recent__item"
-                  onClick={() => openRecent(r.path)}
+                  onClick={() => void openRecent(r.path)}
                   title={r.path}
                 >
                   <span className="badge">{EXT_LABEL[r.ext] ?? r.ext.replace('.', '').toUpperCase()}</span>

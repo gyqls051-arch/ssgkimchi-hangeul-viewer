@@ -1,6 +1,6 @@
 import { lstat, readFile } from 'node:fs/promises'
 import { basename, extname } from 'node:path'
-import type { OpenedFile } from '../preload/api'
+import { MAX_DOC_BYTES, type OpenedFile } from '../preload/api'
 
 /** 뷰어가 다루는 확장자 화이트리스트 */
 export const ALLOWED_EXT = new Set([
@@ -12,8 +12,8 @@ export const ALLOWED_EXT = new Set([
   '.pptx'
 ])
 
-/** 메모리 보호용 상한 (300MB). 초과 시 거부. */
-export const MAX_BYTES = 300 * 1024 * 1024
+/** 메모리 보호용 상한. 초과 시 거부. (렌더러 드롭 폴백과 공유하는 단일 상수) */
+export const MAX_BYTES = MAX_DOC_BYTES
 
 /**
  * 경로를 검증하고 문서 바이트를 읽어 OpenedFile로 반환한다.
