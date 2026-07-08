@@ -73,4 +73,5 @@ nsis:
   createStartMenuShortcut: true
   shortcutName: 싹싹김치 한글뷰어
   # 파일 연결은 사용자가 직접 선택할 수 있게(기본 강제 연결 안 함)
-  artifactName: ${productName}-${version}-setup.${ext}
+  # GitHub Releases 가 비ASCII 자산명을 '.' 로 치환하므로 파일명만 ASCII (표시명은 한글 유지)
+  artifactName: ssgkimchi-hangeul-viewer-${version}-setup.${ext}
