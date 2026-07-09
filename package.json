@@ -1,6 +1,6 @@
 {
   "name": "ssgkimchi-hangeul-viewer",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "싹싹김치 한글뷰어 — 한글(HWP/HWPX)·PDF·Word·Excel·PowerPoint 멀티포맷 문서 뷰어",
   "author": "싹싹김치",
   "license": "MIT",
