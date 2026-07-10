@@ -20,3 +20,12 @@ export async function launchWith(file: string): Promise<ElectronApplication> {
   const userData = mkdtempSync(join(tmpdir(), 'ssgkimchi-e2e-'))
   return electron.launch({ args: [mainEntry, `--user-data-dir=${userData}`], env })
 }
+
+/** 자동 열기 없이 빈 화면(EmptyState)으로 띄운다 (드롭·최근목록 테스트용) */
+export async function launchBlank(): Promise<ElectronApplication> {
+  const env = { ...process.env } as Record<string, string>
+  delete env.ELECTRON_RUN_AS_NODE
+  delete env.SSGKIMCHI_OPEN_ON_START
+  const userData = mkdtempSync(join(tmpdir(), 'ssgkimchi-e2e-'))
+  return electron.launch({ args: [mainEntry, `--user-data-dir=${userData}`], env })
+}

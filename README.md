@@ -3,6 +3,12 @@
 한글(HWP/HWPX)·PDF·Word·Excel·PowerPoint를 한 창에서 보는 **윈도우 데스크톱 멀티포맷 문서 뷰어**.
 폴라리스 뷰어처럼 "편집 말고 보기에 집중한 경량 앱". 100% 오프라인 렌더링.
 
+## 설치 (Windows 10/11 x64)
+
+[**최신 릴리스에서 설치파일 다운로드**](https://github.com/gyqls051-arch/ssgkimchi-hangeul-viewer/releases/latest) → `ssgkimchi-hangeul-viewer-*-setup.exe` 실행.
+
+> 코드서명이 없어 SmartScreen 경고가 뜰 수 있습니다 — "추가 정보 → 실행"으로 진행하세요.
+
 ## 지원 포맷
 
 | 포맷 | 확장자 | 렌더 엔진 | 라이선스 |
