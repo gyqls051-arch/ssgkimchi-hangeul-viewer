@@ -1,53 +1,105 @@
-import { useEffect, useState } from 'react'
-import { FAMILY_NAME, FAMILY_TAGLINE, FAMILY_URL } from '../lib/family'
-import bannerUrl from '../assets/banner-exit.png'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
-/**
- * 종료 확인 모달 (배너 포함).
- * 메인이 창 닫기를 가로채 'show-exit-dialog' 를 보내면 열리고,
- * "종료" 선택 시 window.api.confirmExit() 로 실제 종료를 진행한다.
- * (설치본에서만 활성 — 개발/E2E 에선 메인이 신호를 보내지 않는다)
- */
-export default function ExitDialog() {
+const TITLE_ID = 'exit-dialog-title'
+const DESCRIPTION_ID = 'exit-dialog-description'
+
+interface Props {
+  onBeforeOpen?: () => void
+}
+
+/** 설치본 창 닫기 확인. 광고 없이 취소를 기본 포커스로 두는 native modal dialog다. */
+export default function ExitDialog({ onBeforeOpen }: Props) {
   const [open, setOpen] = useState(false)
+  const dialogRef = useRef<HTMLDialogElement>(null)
+  const cancelButtonRef = useRef<HTMLButtonElement>(null)
+  const previousFocusRef = useRef<HTMLElement | null>(null)
+  const restoreFrameRef = useRef<number | undefined>(undefined)
+  const wasOpenRef = useRef(false)
 
-  useEffect(() => window.api.onShowExitDialog(() => setOpen(true)), [])
+  useEffect(
+    () =>
+      window.api.onShowExitDialog(() => {
+        onBeforeOpen?.()
+        if (restoreFrameRef.current !== undefined) {
+          cancelAnimationFrame(restoreFrameRef.current)
+          restoreFrameRef.current = undefined
+        }
+        const active = document.activeElement
+        previousFocusRef.current = active instanceof HTMLElement ? active : null
+        setOpen(true)
+      }),
+    [onBeforeOpen]
+  )
 
-  // ESC = 취소
+  const cancelExit = useCallback(() => {
+    window.api.cancelExit()
+    setOpen(false)
+  }, [])
+
   useEffect(() => {
-    if (!open) return
-    const onKey = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') setOpen(false)
+    const dialog = dialogRef.current
+    if (!dialog) return
+
+    if (open) {
+      wasOpenRef.current = true
+      if (!dialog.open) dialog.showModal()
+      const frame = requestAnimationFrame(() => cancelButtonRef.current?.focus())
+      return () => cancelAnimationFrame(frame)
     }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+
+    if (!wasOpenRef.current) return
+    wasOpenRef.current = false
+    if (dialog.open) dialog.close()
+    const previous = previousFocusRef.current
+    previousFocusRef.current = null
+    restoreFrameRef.current = requestAnimationFrame(() => {
+      restoreFrameRef.current = undefined
+      if (previous?.isConnected) previous.focus()
+      else document.querySelector<HTMLButtonElement>('#open-document-button')?.focus()
+    })
   }, [open])
 
-  if (!open) return null
+  useEffect(
+    () => () => {
+      if (restoreFrameRef.current !== undefined) cancelAnimationFrame(restoreFrameRef.current)
+    },
+    []
+  )
 
   return (
-    <div className="modal" role="dialog" aria-modal="true" onClick={() => setOpen(false)}>
-      <div className="modal__panel" onClick={(e) => e.stopPropagation()}>
-        {/* 배너 — 교체: src/renderer/src/assets/banner-exit.png 를 같은 크기(720x240)로 덮어쓰면 됨 */}
-        <button
-          className="modal__banner"
-          onClick={() => window.api.openExternal(FAMILY_URL)}
-          title={`${FAMILY_NAME} — ${FAMILY_TAGLINE}`}
-        >
-          <img className="modal__banner-img" src={bannerUrl} alt={FAMILY_NAME} />
-        </button>
-
-        <h2 className="modal__title">싹싹김치 한글뷰어를 종료할까요?</h2>
-
+    <dialog
+      ref={dialogRef}
+      className="modal"
+      aria-labelledby={TITLE_ID}
+      aria-describedby={DESCRIPTION_ID}
+      onCancel={(event) => {
+        event.preventDefault()
+        cancelExit()
+      }}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) cancelExit()
+      }}
+    >
+      <div className="modal__panel">
+        <h2 id={TITLE_ID} className="modal__title">
+          싹싹김치 한글뷰어를 종료할까요?
+        </h2>
+        <p id={DESCRIPTION_ID} className="modal__description">
+          열어 둔 문서는 변경하지 않으며 뷰어만 종료합니다.
+        </p>
         <div className="modal__actions">
-          <button className="btn" onClick={() => setOpen(false)}>
+          <button ref={cancelButtonRef} type="button" className="btn" onClick={cancelExit}>
             취소
           </button>
-          <button className="btn btn--primary" onClick={() => window.api.confirmExit()}>
+          <button
+            type="button"
+            className="btn btn--primary"
+            onClick={() => window.api.confirmExit()}
+          >
             종료
           </button>
         </div>
       </div>
-    </div>
+    </dialog>
   )
 }

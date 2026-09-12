@@ -1,91 +1,225 @@
 import { BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import { basename, extname } from 'node:path'
 import { readDoc } from './fileService'
-import { addRecent, clearRecent, getRecent, isKnownRecent, removeRecent } from './store'
+import {
+  addRecent,
+  clearRecent,
+  listRecentItems,
+  removeRecentPath,
+  resolveRecentId
+} from './store'
+import { isTrustedIpcEvent, parseExternalHttpsUrl } from './rendererTrust'
+import type { OpenedFile } from '../preload/api'
 
 const FILTERS: Electron.FileFilter[] = [
-  { name: '모든 지원 문서', extensions: ['pdf', 'hwp', 'hwpx', 'docx', 'xlsx', 'pptx'] },
-  { name: '한글 문서 (hwp, hwpx)', extensions: ['hwp', 'hwpx'] },
-  { name: 'PDF (pdf)', extensions: ['pdf'] },
-  { name: 'Word (docx)', extensions: ['docx'] },
-  { name: 'Excel (xlsx)', extensions: ['xlsx'] },
-  { name: 'PowerPoint (pptx)', extensions: ['pptx'] }
+  { name: '지원 문서', extensions: ['hwp', 'hwpx', 'pdf', 'docx', 'xlsx', 'pptx'] },
+  { name: '한글 문서', extensions: ['hwp', 'hwpx'] },
+  { name: 'PDF', extensions: ['pdf'] },
+  { name: 'Microsoft Office', extensions: ['docx', 'xlsx', 'pptx'] }
 ]
 
+interface ActiveOpen {
+  generation: number
+  controller: AbortController
+}
+
+type OpenSource = 'system' | 'dialog' | 'drop' | 'recent'
+
+let openGeneration = 0
+let activeOpen: ActiveOpen | null = null
+let dialogOpen = false
+let lastExternalOpenAt = 0
+
+function isAbort(error: unknown): boolean {
+  return error instanceof Error && error.name === 'AbortError'
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error)
+}
+
+function reportAsyncFailure(scope: string, error: unknown): void {
+  console.error(`[ipc] ${scope}:`, error)
+}
+
+/** navigation/crash/shutdown 또는 더 최신 renderer fallback 시 진행 중인 read를 무효화한다. */
+export function cancelActiveOpen(): void {
+  openGeneration += 1
+  activeOpen?.controller.abort()
+  activeOpen = null
+}
+
 /**
- * 모든 열기 경로(다이얼로그·메뉴·파일연결·최근목록·드롭)는 결국 이 함수로 모여
- * 렌더러에는 단일 'open-file' 이벤트로만 전달된다.
- * @returns 읽기·전송 성공 여부
+ * 모든 main 기반 열기 경로의 latest-request-wins 조정자.
+ * descriptor read가 끝난 뒤에도 generation/window 상태를 재검사하며 canonicalPath는 IPC로 보내지 않는다.
  */
-async function emitOpenFile(win: BrowserWindow, path: string): Promise<boolean> {
+async function emitOpenFile(
+  win: BrowserWindow,
+  path: string,
+  source: OpenSource
+): Promise<boolean> {
+  if (win.isDestroyed() || win.webContents.isDestroyed()) return false
+
+  const generation = ++openGeneration
+  activeOpen?.controller.abort()
+  const controller = new AbortController()
+  activeOpen = { generation, controller }
+
+  // renderer가 진행 중인 pathless File read를 즉시 stale 처리할 수 있게 결과보다 먼저 알린다.
+  win.webContents.send('open-file-start')
+
   try {
-    const file = await readDoc(path)
-    if (win.isDestroyed()) return false
-    win.webContents.send('open-file', file)
+    const document = await readDoc(path, controller.signal)
+    if (
+      controller.signal.aborted ||
+      generation !== openGeneration ||
+      win.isDestroyed() ||
+      win.webContents.isDestroyed()
+    ) {
+      return false
+    }
+
+    // main-only canonicalPath를 구조분해로 명시적으로 제거한다.
+    const payload: OpenedFile = {
+      name: document.name,
+      ext: document.ext,
+      bytes: document.bytes
+    }
+    win.webContents.send('open-file', payload)
+
     void addRecent({
-      path,
-      name: basename(path),
-      ext: extname(path).toLowerCase(),
+      path: document.canonicalPath,
+      name: document.name,
+      ext: document.ext,
       openedAt: Date.now()
-    })
+    }).catch((error: unknown) => reportAsyncFailure('최근 파일 저장 실패', error))
     return true
-  } catch (err: unknown) {
-    // 최근목록의 죽은 경로(이동/삭제)는 제거
-    void removeRecent(path)
-    dialog.showErrorBox('열기 실패', err instanceof Error ? err.message : String(err))
+  } catch (error: unknown) {
+    if (isAbort(error) || controller.signal.aborted || generation !== openGeneration) return false
+
+    if (source === 'recent') {
+      void removeRecentPath(path).catch((removeError: unknown) =>
+        reportAsyncFailure('죽은 최근 파일 제거 실패', removeError)
+      )
+    }
+    if (!win.isDestroyed() && !win.webContents.isDestroyed() && generation === openGeneration) {
+      // 검증에 실패한 원본 바이트는 parser에 넘기지 않는다. 대신 동일 포맷의 빈 payload로
+      // 기존 viewer 오류 UI를 안전하게 표시해 native modal로 앱 종료가 막히지 않게 한다.
+      const extension = extname(path).toLowerCase()
+      const safeFailureBytes = ['.hwpx', '.docx', '.xlsx', '.pptx'].includes(extension)
+        ? Uint8Array.of(0x50, 0x4b, 0x03, 0x04).buffer
+        : new ArrayBuffer(0)
+      win.webContents.send('open-file', {
+        name: basename(path),
+        ext: extension,
+        bytes: safeFailureBytes
+      } satisfies OpenedFile)
+      console.warn(`[ipc] 문서 검증 거부(${source}): ${errorMessage(error)}`)
+    }
     return false
+  } finally {
+    if (activeOpen?.generation === generation) activeOpen = null
   }
 }
 
 /** 파일 연결(더블클릭)·명령행 인자로 들어온 경로 열기 */
-export function openPath(win: BrowserWindow, path: string): void {
-  void emitOpenFile(win, path)
+export function openPath(win: BrowserWindow, path: string): Promise<boolean> {
+  return emitOpenFile(win, path, 'system')
 }
 
-/** 열기 다이얼로그 → 선택 시 'open-file' 전송 */
+/** 열기 다이얼로그 → 선택 시 단일 조정자를 통해 전송 */
 export async function openViaDialog(win: BrowserWindow): Promise<void> {
-  const res = await dialog.showOpenDialog(win, {
-    title: '문서 열기',
-    properties: ['openFile'],
-    filters: FILTERS
-  })
-  if (res.canceled || res.filePaths.length === 0) return
-  emitOpenFile(win, res.filePaths[0])
+  if (dialogOpen || win.isDestroyed()) return
+  dialogOpen = true
+  try {
+    const result = await dialog.showOpenDialog(win, {
+      title: '문서 열기',
+      properties: ['openFile'],
+      filters: FILTERS
+    })
+    if (result.canceled || result.filePaths.length === 0 || win.isDestroyed()) return
+    await emitOpenFile(win, result.filePaths[0], 'dialog')
+  } finally {
+    dialogOpen = false
+  }
 }
 
-/** 렌더러가 호출할 수 있는 IPC 등록 (열기 경로 인자는 최근목록 검증을 거친다) */
-export function registerIpc(): void {
-  ipcMain.handle('dialog:open', async (event) => {
-    const win = BrowserWindow.fromWebContents(event.sender)
+/** 렌더러가 호출할 수 있는 IPC 등록 */
+export function registerIpc(getMainWindow: () => BrowserWindow | null): void {
+  const trusted = (event: Parameters<typeof isTrustedIpcEvent>[0]): boolean =>
+    isTrustedIpcEvent(event, getMainWindow)
+
+  ipcMain.handle('dialog:open', async (event): Promise<void> => {
+    if (!trusted(event)) return
+    const win = getMainWindow()
     if (win) await openViaDialog(win)
   })
 
-  ipcMain.handle('recent:list', () => getRecent())
-
-  ipcMain.handle('recent:open', async (event, path: unknown): Promise<boolean> => {
-    if (typeof path !== 'string') return false
-    // 렌더러가 임의 경로를 열지 못하도록 최근목록에 있는 경로만 허용
-    if (!(await isKnownRecent(path))) return false
-    const win = BrowserWindow.fromWebContents(event.sender)
-    return win ? emitOpenFile(win, path) : false
+  ipcMain.handle('recent:list', async (event) => {
+    if (!trusted(event)) return []
+    return listRecentItems()
   })
 
-  ipcMain.handle('recent:clear', () => clearRecent())
+  ipcMain.handle('recent:open', async (event, id: unknown): Promise<boolean> => {
+    if (!trusted(event) || typeof id !== 'string') return false
+    const path = await resolveRecentId(id)
+    const win = getMainWindow()
+    return path && win ? emitOpenFile(win, path, 'recent') : false
+  })
 
-  // 드롭 파일 열기 — preload 가 webUtils.getPathForFile 로 얻은 경로만 이 채널로 들어온다.
-  // 렌더러는 ipcRenderer 직접 접근이 불가(sandbox+contextIsolation)하고, 합성 File 은
-  // 경로가 '' 라 preload 가 거른다 → 임의 경로 주입 불가. readDoc 이 확장자 화이트리스트·
-  // 정규파일·크기 검증을 다시 수행하므로 문서 이외 파일은 어차피 읽히지 않는다.
+  ipcMain.handle('recent:clear', async (event): Promise<void> => {
+    if (!trusted(event)) return
+    await clearRecent()
+  })
+
+  // pathless renderer File read가 더 최신 의도이면 기존 descriptor read를 중단한다.
+  ipcMain.on('open:cancel', (event) => {
+    if (!trusted(event)) return
+    cancelActiveOpen()
+  })
+
+  // preload의 webUtils.getPathForFile이 실제 OS drag File에서 얻은 경로만 허용한다.
   ipcMain.on('drop:open', (event, path: unknown) => {
-    if (typeof path !== 'string') return
-    const win = BrowserWindow.fromWebContents(event.sender)
-    if (win) void emitOpenFile(win, path)
+    if (!trusted(event) || typeof path !== 'string' || path.length === 0 || path.length > 32_768) {
+      return
+    }
+    const win = getMainWindow()
+    if (win) {
+      void emitOpenFile(win, path, 'drop').catch((error: unknown) =>
+        reportAsyncFailure('드롭 파일 열기 실패', error)
+      )
+    }
   })
 
-  // 문서 내 외부 링크 열기 — http/https 만 허용
-  ipcMain.on('open-external', (_event, url: unknown) => {
-    if (typeof url === 'string' && /^https?:\/\//i.test(url)) {
-      void shell.openExternal(url)
+  ipcMain.handle('open-external', async (event, value: unknown): Promise<boolean> => {
+    if (!trusted(event)) return false
+    const url = parseExternalHttpsUrl(value)
+    if (!url) return false
+
+    const now = Date.now()
+    if (now - lastExternalOpenAt < 2_000) return false
+
+    const win = getMainWindow()
+    if (!win) return false
+    const result = await dialog.showMessageBox(win, {
+      type: 'question',
+      title: '외부 링크 열기',
+      message: `${url.hostname} 사이트를 기본 브라우저에서 여시겠습니까?`,
+      detail: url.href,
+      buttons: ['열기', '취소'],
+      defaultId: 1,
+      cancelId: 1,
+      noLink: true
+    })
+    if (result.response !== 0 || !trusted(event) || win.isDestroyed()) return false
+
+    lastExternalOpenAt = Date.now()
+    try {
+      await shell.openExternal(url.href, { activate: true })
+      return true
+    } catch (error: unknown) {
+      reportAsyncFailure('외부 링크 열기 실패', error)
+      return false
     }
   })
 }

@@ -28,7 +28,7 @@ export default class ErrorBoundary extends Component<Props, State> {
   render(): ReactNode {
     if (this.state.error) {
       return (
-        <div className="viewer-error">
+        <div className="viewer-error" role="alert" aria-live="assertive" aria-atomic="true">
           <div className="viewer-error__icon" aria-hidden>
             ⚠️
           </div>

@@ -1,0 +1,3902 @@
+{
+  "$schema": "https://cyclonedx.org/schema/bom-1.6.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:cfc64552-e88f-5577-bfab-ac9c89a91576",
+  "version": 1,
+  "metadata": {
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "name": "ssgkimchi offline compliance generator",
+          "version": "1"
+        }
+      ]
+    },
+    "component": {
+      "type": "application",
+      "bom-ref": "app:ssgkimchi-hangeul-viewer@0.2.0",
+      "name": "ssgkimchi-hangeul-viewer",
+      "version": "0.2.0",
+      "purl": "pkg:npm/ssgkimchi-hangeul-viewer@0.2.0",
+      "copyright": "Copyright (c) 2026 싹싹김치",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    "properties": [
+      {
+        "name": "ssgkimchi:generator:deterministic",
+        "value": "true"
+      },
+      {
+        "name": "ssgkimchi:generator:network-access",
+        "value": "none"
+      },
+      {
+        "name": "ssgkimchi:inventory:fingerprint",
+        "value": "cfc64552e88fa577bfabac9c89a915768e77180662e8b6160a887dd4d96cb5ae"
+      },
+      {
+        "name": "ssgkimchi:inventory:lockfile",
+        "value": "package-lock.json"
+      },
+      {
+        "name": "ssgkimchi:inventory:lockfile-sha256",
+        "value": "4e802ee4915cb2cb9e3d94cc60c944dba0872d844356318b368f7a1960302931"
+      },
+      {
+        "name": "ssgkimchi:inventory:scope",
+        "value": "Conservative package-lock production closure (required, optional, installed peers) plus the shipped Electron runtime and selected non-npm runtime assets."
+      },
+      {
+        "name": "ssgkimchi:inventory:scope-limitation:chromium",
+        "value": "Chromium internal components are not expanded; consult the hashed Electron LICENSES.chromium.html notice."
+      },
+      {
+        "name": "ssgkimchi:inventory:scope-limitation:rhwp-wasm",
+        "value": "Rust crates compiled into @rhwp/core WASM are not enumerated by npm metadata; obtain a version-bound upstream crate inventory."
+      },
+      {
+        "name": "ssgkimchi:inventory:scope-limitation:artifact",
+        "value": "Declared optional dependencies may be overincluded and declared production dependencies may be bundled rather than copied as node_modules; this is not a byte-level installer inventory."
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "framework",
+      "bom-ref": "asset:electron:chromium-runtime",
+      "name": "Chromium runtime embedded in Electron",
+      "version": "bundled with Electron 42.10.1",
+      "licenses": [
+        {
+          "license": {
+            "name": "Multiple licenses; see LICENSES.chromium.html"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:owner-package-path",
+          "value": "node_modules/electron"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope-limitation",
+          "value": "Chromium and its internal third-party components are not expanded into npm components; the Electron runtime notice is authoritative."
+        },
+        {
+          "name": "ssgkimchi:notices:bytes",
+          "value": "20008860"
+        },
+        {
+          "name": "ssgkimchi:notices:path",
+          "value": "node_modules/electron/dist/LICENSES.chromium.html"
+        },
+        {
+          "name": "ssgkimchi:notices:sha256",
+          "value": "ca0a3f71df977796bf39a99472783c1ce9378bf4d8f4142a95048c3843980415"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "bom-ref": "asset:pdfjs:adobe-cmaps",
+      "name": "PDF.js Adobe CMaps",
+      "version": "6.3.289",
+      "licenses": [
+        {
+          "license": {
+            "name": "Adobe CMap redistribution terms"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:hash:scope",
+          "value": "168 .bcmap files"
+        },
+        {
+          "name": "ssgkimchi:inventory:owner-package-path",
+          "value": "node_modules/pdfjs-dist"
+        },
+        {
+          "name": "ssgkimchi:notices:path",
+          "value": "node_modules/pdfjs-dist/cmaps/LICENSE"
+        },
+        {
+          "name": "ssgkimchi:notices:sha256",
+          "value": "aa92ab5a472974865a96fd4a4e9c13bb41bf6fe1b309cb6b8da48bc9e19839a2"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-256",
+          "content": "82B893B6A0343A75729114D30B33799DA6477D10A3B2838BE2A85E010229D5F5"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "bom-ref": "asset:pdfjs:foxit-standard-fonts",
+      "name": "PDF.js Foxit standard fonts",
+      "version": "6.3.289",
+      "licenses": [
+        {
+          "license": {
+            "name": "PDFium Foxit font redistribution terms"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:hash:scope",
+          "value": "10 Foxit .pfb files"
+        },
+        {
+          "name": "ssgkimchi:inventory:owner-package-path",
+          "value": "node_modules/pdfjs-dist"
+        },
+        {
+          "name": "ssgkimchi:notices:path",
+          "value": "node_modules/pdfjs-dist/standard_fonts/LICENSE_FOXIT"
+        },
+        {
+          "name": "ssgkimchi:notices:sha256",
+          "value": "b578cdd2345840ada550bd12519533812320d5f1d21cf4c1c7e1b1b0a31c98b7"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-256",
+          "content": "293C5691F7C492661C80EEA643F4A4E3AE3C07300ECEF26B2FB52E9E4FEB5052"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "bom-ref": "asset:pdfjs:liberation-sans-fonts",
+      "name": "PDF.js Liberation Sans standard fonts",
+      "version": "6.3.289",
+      "licenses": [
+        {
+          "license": {
+            "name": "Liberation Font Software license agreement"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:hash:scope",
+          "value": "4 Liberation Sans .ttf files"
+        },
+        {
+          "name": "ssgkimchi:inventory:owner-package-path",
+          "value": "node_modules/pdfjs-dist"
+        },
+        {
+          "name": "ssgkimchi:notices:path",
+          "value": "node_modules/pdfjs-dist/standard_fonts/LICENSE_LIBERATION"
+        },
+        {
+          "name": "ssgkimchi:notices:sha256",
+          "value": "d2c4d5b3e115a519cb58eb691aa64538397e2611f9ebe801392cf9667997e7dc"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-256",
+          "content": "549AAC20EF65FA5398259370DCFE63F0DD93CD0A4BA7465E8B64FD57032B8E6B"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "bom-ref": "asset:rhwp:rhwp-bg-wasm",
+      "name": "@rhwp/core WebAssembly module",
+      "version": "0.7.19",
+      "licenses": [
+        {
+          "license": {
+            "name": "See @rhwp/core and embedded Rust crate scope limitation"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:hash:scope",
+          "value": "rhwp_bg.wasm"
+        },
+        {
+          "name": "ssgkimchi:inventory:owner-package-path",
+          "value": "node_modules/@rhwp/core"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope-limitation",
+          "value": "The npm lockfile identifies @rhwp/core but does not enumerate Rust crates compiled into the WASM. The local package has no crate-level THIRD_PARTY_LICENSES file."
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-256",
+          "content": "5E68BAE80611FDD4D231967B9E13DFF0F3F1CDBB17A09A090C2052593C3980E9"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:@napi-rs/canvas-android-arm64@1.0.0:node_modules/@napi-rs/canvas-android-arm64",
+      "name": "@napi-rs/canvas-android-arm64",
+      "version": "1.0.0",
+      "purl": "pkg:npm/%40napi-rs/canvas-android-arm64@1.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/@napi-rs/canvas-android-arm64"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-3hNKJObUK7JsCF9aJlVCs1J0/KE/gGfZNeK8MO1ge6bB3aicr5walGme9t9No1f/oyk9GgvdAT/rjSdsx3gbIw=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "metadata-only-platform-constrained-optional-entry"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "DE134A24E6D42BB26C085F5A265542B35274FCA13F8067D935E2BC30ED607BA6C1DDA89CAF9C1A94699EF6DF4DA357FFA3293D1A0BDD013FEB8D276CC7781B23"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-android-arm64/-/canvas-android-arm64-1.0.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:@napi-rs/canvas-darwin-arm64@1.0.0:node_modules/@napi-rs/canvas-darwin-arm64",
+      "name": "@napi-rs/canvas-darwin-arm64",
+      "version": "1.0.0",
+      "purl": "pkg:npm/%40napi-rs/canvas-darwin-arm64@1.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/@napi-rs/canvas-darwin-arm64"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-ZIja19/BiGz2puhki+WUYSRriwFeFJ8Mi9eK3hZdSS85w4Y60cuEAJVhMCfKwswQkKkUtrnzdKMBuO7TupvexA=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "metadata-only-platform-constrained-optional-entry"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "6488DAD7DFC1886CF6A6E8648BE59461246B8B015E149F0C8BD78ADE165D492F39C3863AD1CB840095613027CAC2CC1090A914B6B9F374A301B8EED3BA9BDEC4"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-darwin-arm64/-/canvas-darwin-arm64-1.0.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:@napi-rs/canvas-darwin-x64@1.0.0:node_modules/@napi-rs/canvas-darwin-x64",
+      "name": "@napi-rs/canvas-darwin-x64",
+      "version": "1.0.0",
+      "purl": "pkg:npm/%40napi-rs/canvas-darwin-x64@1.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/@napi-rs/canvas-darwin-x64"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-hImggWc82jqZVpEsFR9S7PE9OQYjq/H/D7vwCGB6X1jRH+UVBP1+1niJTPBOat1B154T6GKK7/kcFtoWgjgFzQ=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "metadata-only-platform-constrained-optional-entry"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "8489A081673CDA3A9956912C151F52ECF13D390623ABF1FF0FBBF008607A5F58D11FE51504FD7ED678894CF04E6ADD41D79E13E8628AEFF91C16DA16823805CD"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-darwin-x64/-/canvas-darwin-x64-1.0.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:@napi-rs/canvas-linux-arm-gnueabihf@1.0.0:node_modules/@napi-rs/canvas-linux-arm-gnueabihf",
+      "name": "@napi-rs/canvas-linux-arm-gnueabihf",
+      "version": "1.0.0",
+      "purl": "pkg:npm/%40napi-rs/canvas-linux-arm-gnueabihf@1.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/@napi-rs/canvas-linux-arm-gnueabihf"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-hlJRy6d+kWLKVOG/+1rEvNQVURZ0DxxRPJsLmEWwhwiXZUJc0BF5o9esALHSEP4CoJK4wChRtj3hnyBgVx2oWA=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "metadata-only-platform-constrained-optional-entry"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "865251CBA77E9162CA54E1BFFB5AC4BCD4155116740F1C513C9B0B9845B087089765425CD01179A3D7AC00B1D210FE02A092B8C02851B63DE19F2060571DA858"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-linux-arm-gnueabihf/-/canvas-linux-arm-gnueabihf-1.0.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:@napi-rs/canvas-linux-arm64-gnu@1.0.0:node_modules/@napi-rs/canvas-linux-arm64-gnu",
+      "name": "@napi-rs/canvas-linux-arm64-gnu",
+      "version": "1.0.0",
+      "purl": "pkg:npm/%40napi-rs/canvas-linux-arm64-gnu@1.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/@napi-rs/canvas-linux-arm64-gnu"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-5Hru4T3RXkosRQafcjelv7AUzw9mXqmGYsxnzeDDOWveFCJyEPMSJltvGCM+jfH98seOCbfwm9KyFg6Jm5FhAA=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "metadata-only-platform-constrained-optional-entry"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "E47AEEE13DD15E4A2C45069F7237A5BFB014CF0F665EA98662CC67CDE0C3396BDE14227210F312265B6F18233E8DF1FDF2C78E09B7F09BD2B2160E899B916100"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-linux-arm64-gnu/-/canvas-linux-arm64-gnu-1.0.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:@napi-rs/canvas-linux-arm64-musl@1.0.0:node_modules/@napi-rs/canvas-linux-arm64-musl",
+      "name": "@napi-rs/canvas-linux-arm64-musl",
+      "version": "1.0.0",
+      "purl": "pkg:npm/%40napi-rs/canvas-linux-arm64-musl@1.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/@napi-rs/canvas-linux-arm64-musl"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-LTUl9jS8WsLSUGaxQZKQkxfluOJRpgvBuxxdM4pYcjib+di8AU4OzQc6+L6SzGMLcKc9H0RAjojRatBhTMqYdg=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "metadata-only-platform-constrained-optional-entry"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "2D3525F634BC5AC2D25066B14192909317E5B8E251A60BC1BB1C5D338A5872389BF9D8BC014E0ECD073AF8BE92CC630B70A73D1F44408E88D16AD0614CCA9876"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-linux-arm64-musl/-/canvas-linux-arm64-musl-1.0.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:@napi-rs/canvas-linux-riscv64-gnu@1.0.0:node_modules/@napi-rs/canvas-linux-riscv64-gnu",
+      "name": "@napi-rs/canvas-linux-riscv64-gnu",
+      "version": "1.0.0",
+      "purl": "pkg:npm/%40napi-rs/canvas-linux-riscv64-gnu@1.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/@napi-rs/canvas-linux-riscv64-gnu"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-Iz931SAZf+WVDzpjk52Q3ffW3zw0YflFwEZMgs036Wfu1kX/LrwT9wGjsuSqyduqefUkl91/vTdAjn8hQu5ezA=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "metadata-only-platform-constrained-optional-entry"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "233F77D520197FE5950F3A63939D90DDF7D6DF3C3461F945C0464C82CD37E967EED645FF2EBC13F701A3B2E4AAC9DBAA79F52497DD7FBD37408E7F2142EE5ECC"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-linux-riscv64-gnu/-/canvas-linux-riscv64-gnu-1.0.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:@napi-rs/canvas-linux-x64-gnu@1.0.0:node_modules/@napi-rs/canvas-linux-x64-gnu",
+      "name": "@napi-rs/canvas-linux-x64-gnu",
+      "version": "1.0.0",
+      "purl": "pkg:npm/%40napi-rs/canvas-linux-x64-gnu@1.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/@napi-rs/canvas-linux-x64-gnu"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-pFEQ5eFK4JusgN1K6KkO9DKP/Hi1WMJOkF8Ch03/khTc4bFbCKkCCsJG4YcOMOW9bI4XbT2/eMAWxhO0xaWgPA=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "metadata-only-platform-constrained-optional-entry"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "A45110E5E14AE09BAC80DD4AE8A90EF4328FFC78B558C24E905F02874DFF9214DCE1B15B08A9020AC246E1870E30E5BD6C8E176D3DBF78C016C613B4C5A5A03C"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-linux-x64-gnu/-/canvas-linux-x64-gnu-1.0.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:@napi-rs/canvas-linux-x64-musl@1.0.0:node_modules/@napi-rs/canvas-linux-x64-musl",
+      "name": "@napi-rs/canvas-linux-x64-musl",
+      "version": "1.0.0",
+      "purl": "pkg:npm/%40napi-rs/canvas-linux-x64-musl@1.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/@napi-rs/canvas-linux-x64-musl"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-jnvr8NrLHiZ3NCiOKWqDbkI4Ah+QDrqtZ+sddPZBltEb1mQ2coSvCSJYfict+oAwcm0c970oTmVySpjKP/lnaA=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "metadata-only-platform-constrained-optional-entry"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "8E7BEBF0DACB1E267734288E296A836E4238021F900EBAAD67EB1D74F64196D11BD664367284AF0922587E272DFA8030726D1CF7BD284E65724A98CA3FF96768"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-linux-x64-musl/-/canvas-linux-x64-musl-1.0.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:@napi-rs/canvas-win32-arm64-msvc@1.0.0:node_modules/@napi-rs/canvas-win32-arm64-msvc",
+      "name": "@napi-rs/canvas-win32-arm64-msvc",
+      "version": "1.0.0",
+      "purl": "pkg:npm/%40napi-rs/canvas-win32-arm64-msvc@1.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/@napi-rs/canvas-win32-arm64-msvc"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-y2j9/Gfd5joqiqxdP/L1smqjQ+uAx3C4N0EC7bDHrnZEEH8ToM/OC5p3uHvtj4Lq591aHj+ArL01UDLNwT5HgQ=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "metadata-only-platform-constrained-optional-entry"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "CB68FDFC67DDE63A2A8AAC5D3FF2F5B26AA343EB80C770B8374102EDB0C7AE7644107F13A0CFCE0B9A77B87BED8F82EAE7DD5A1E3F80ACBD355032CDC13E4781"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-win32-arm64-msvc/-/canvas-win32-arm64-msvc-1.0.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:@napi-rs/canvas-win32-x64-msvc@1.0.0:node_modules/@napi-rs/canvas-win32-x64-msvc",
+      "name": "@napi-rs/canvas-win32-x64-msvc",
+      "version": "1.0.0",
+      "purl": "pkg:npm/%40napi-rs/canvas-win32-x64-msvc@1.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/@napi-rs/canvas-win32-x64-msvc"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-qwdhh9N6Gge/hC4pL9S1tQp0iKwhSl/dYjg7+RGp9k26iRGRi5MqqUyKGOXIWli0zOcuy5Y2wIH/jk2ry6i/jA=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "metadata-only-platform-constrained-optional-entry"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "AB076187D37A1A07BF842E292FD4B5B50A7488AC214A5FDD62383BF911A9F64DBA8911918B932AA94C8A18E5C85A58B4CCE72ECB9636C081FF8E4DABCBA8BF8C"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-win32-x64-msvc/-/canvas-win32-x64-msvc-1.0.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:@napi-rs/canvas@1.0.0:node_modules/@napi-rs/canvas",
+      "name": "@napi-rs/canvas",
+      "version": "1.0.0",
+      "purl": "pkg:npm/%40napi-rs/canvas@1.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/@napi-rs/canvas"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-Jqxcy1XOIqj+lH9sl1GT+il6GR3uQv13vI2mrwubP3uT8Olak2ClDrK2RnxlQKjwv8BRr4b3ug0YR7c6hBX8wg=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/@napi-rs/canvas/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "26AC5CCB55CE22A8FE947F6C975193FA297A191DEE42FD77BC8DA6AF0B9B3F7B93F0E95A9360A50EB2B6467C6540A8F0BFC051AF86F7BA0D1847B73A8415FCC2"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@napi-rs/canvas/-/canvas-1.0.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:@rhwp/core@0.7.19:node_modules/@rhwp/core",
+      "name": "@rhwp/core",
+      "version": "0.7.19",
+      "purl": "pkg:npm/%40rhwp/core@0.7.19",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/@rhwp/core"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-rc0sRpYQowavYgteFXkqCkuiXTZJa2C8fl5toq01y20SVtiIRFKGVcATk6+jHOuCjK0l81fGLSZaEIBTwKXkAQ=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/@rhwp/core/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "ADCD2C469610A306AF620B5E15792A0A4BA25D36496B60BC7E5E6DA2AD35CB6D1256D88844528655C01393AFA31CEB828CAD25F357C62D265A108053C0A5E401"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@rhwp/core/-/core-0.7.19.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:@types/trusted-types@2.0.7:node_modules/@types/trusted-types",
+      "name": "@types/trusted-types",
+      "version": "2.0.7",
+      "purl": "pkg:npm/%40types/trusted-types@2.0.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/@types/trusted-types"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/@types/trusted-types/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "49C68F767D5D41CCE06E5D101537933A65471542EDDFDE17260390368C95859EABDAF2E730B25F04F779DD2079D93FF71B7E95235FE0D8C65A5F47300EE5EC7F"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@types/trusted-types/-/trusted-types-2.0.7.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:argparse@2.0.1:node_modules/argparse",
+      "name": "argparse",
+      "version": "2.0.1",
+      "purl": "pkg:npm/argparse@2.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "Python-2.0"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/argparse"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/argparse/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "F3EF56A9E6DB173A57F4E47E59AE8EDBD6AC22881E44CCDC1AD00835DA4C1C7C80835D1FD3969215505B704A867FF3D7C35123019FAADBF6C4060DC3BEEACADD"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/argparse/-/argparse-2.0.1.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:builder-util-runtime@9.7.0:node_modules/builder-util-runtime",
+      "name": "builder-util-runtime",
+      "version": "9.7.0",
+      "purl": "pkg:npm/builder-util-runtime@9.7.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/builder-util-runtime"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-g/kR520giAFYkSXTzcmF3kqQq7wi8F6N6SzeDgZrqTBN+VHdmgWOyTdD1yD7AATDId/yXLvuP34CxW46/BwCdw=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/builder-util-runtime/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "83F911E76D208801589125D3CDC985DE4A90ABBC22F05E8DE92CDE0E066BA9304DF951DD9A058EC93743D720FB0004C321DFF25CBBEE3F7E02C56E3AFC1C0277"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/builder-util-runtime/-/builder-util-runtime-9.7.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:core-util-is@1.0.3:node_modules/core-util-is",
+      "name": "core-util-is",
+      "version": "1.0.3",
+      "purl": "pkg:npm/core-util-is@1.0.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/core-util-is"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/core-util-is/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "65006F8B50DCA49E060EA6A78EE719D878F7C043B9A590D2F3D0566E472BBDDC64B09A2BC140C365A997F65745929F5AC369660432E090E6C40380D6349F4561"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/core-util-is/-/core-util-is-1.0.3.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:debug@4.4.3:node_modules/debug",
+      "name": "debug",
+      "version": "4.4.3",
+      "purl": "pkg:npm/debug@4.4.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/debug"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/debug/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "446C305A7C10BE455F6AF295B76D8518BC3EC5849DCC04709B4AEEE83853540DEE994E6165CDBC57790EE2CB6062BCAB4E52E9BAF808F468A28E5B408CD6DCA8"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/debug/-/debug-4.4.3.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:docx-preview@0.3.7:node_modules/docx-preview",
+      "name": "docx-preview",
+      "version": "0.3.7",
+      "purl": "pkg:npm/docx-preview@0.3.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/docx-preview"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-Lav69CTA/IYZPJTsKH7oYeoZjyg96N0wEJMNslGJnZJ+dMUZK85Lt5ASC79yUlD48ecWjuv+rkcmFt6EVPV0Xg=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/docx-preview/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "2DABFAF424C0FC86193C94EC287EE861EA198F283DE8DD3010930DB251899D927E74C5192BCE4BB790120BBF725250F8F1E7168EEBFEAE472616DE8454F5745E"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/docx-preview/-/docx-preview-0.3.7.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:dompurify@3.4.14:node_modules/dompurify",
+      "name": "dompurify",
+      "version": "3.4.14",
+      "purl": "pkg:npm/dompurify@3.4.14",
+      "licenses": [
+        {
+          "expression": "(MPL-2.0 OR Apache-2.0)"
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/dompurify"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-dVoH9z+MY+C9IilgGCk3YfFqjLi3fChm2OiKJMzh6axrJ5qwxqWaZamgmHrpv22CN/KdbZJuGEGgfQoL00LTdg=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/dompurify/LICENSE,node_modules/dompurify/LICENSE-MPL"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "755A07F73F8C63E0BD22296018293761F16A8CB8B77C2866D8E88A24CCE1E9AC6B279AB0C6A59A65A9A0987AE9BF6D8237F29D6D926E1841A07D0A0BD342D376"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/dompurify/-/dompurify-3.4.14.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:echarts@6.1.0:node_modules/echarts",
+      "name": "echarts",
+      "version": "6.1.0",
+      "purl": "pkg:npm/echarts@6.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/echarts"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-q0yaFPggC9FUdsWH4blavRWFmxdrIodbkoKNAjJudAI6CA9gNPxHtV2RcZNEepZVlk4yvBYkOkbk6HIVpIyHZA=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/echarts/LICENSE,node_modules/echarts/NOTICE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "AB4C9A14F8200BD15476C587E1B95ABD15859B176B22875B92828D02326E74023A080F6034FC47B55D917193447A9655964E32BC16243A46E4E87215A48C8764"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/echarts/-/echarts-6.1.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:electron-updater@6.8.9:node_modules/electron-updater",
+      "name": "electron-updater",
+      "version": "6.8.9",
+      "purl": "pkg:npm/electron-updater@6.8.9",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/electron-updater"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-ZhVxM9iGONUpZGI1FxdMRgJjUFXi7AYGVa5PwKlO1tV1/4zDxQmfKpXOHVztKrd6L9rLcFjERvi1Mf2vxyTkig=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/electron-updater/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "66157133D88638D52964623517174C4602635055E2EC060655AE4FC0A94ED6D575FF8CC3C5099F2A95CE1D5CED2AB77A2FDACB7058C446F8B531FDAFC724E48A"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/electron-updater/-/electron-updater-6.8.9.tgz"
+        }
+      ]
+    },
+    {
+      "type": "framework",
+      "bom-ref": "npm:electron@42.10.1:node_modules/electron",
+      "name": "electron",
+      "version": "42.10.1",
+      "purl": "pkg:npm/electron@42.10.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/electron"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "shipped-electron-runtime"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "true"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-ITc1HPeoDzsxCCaH6MFsN67Nq2nUiJf5N9pBWxzhUpFfKJF0IwiAkKT3emg1lPbvC4OfFE+Cdwe4vhgdOZ1YKg=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/electron/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "2137351CF7A80F3B31082687E8C16C37AECDAB69D48897F937DA415B1CE152915F28917423088090A4F77A683594F6EF0B839F144F827707B8BE181D399D582A"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/electron/-/electron-42.10.1.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:fs-extra@10.1.0:node_modules/fs-extra",
+      "name": "fs-extra",
+      "version": "10.1.0",
+      "purl": "pkg:npm/fs-extra@10.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/fs-extra"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/fs-extra/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "A115C0A6AE78113463E1E3221731A71D61B2FB3A39ADAB9D8EEC4DD1BF07EECFD1536A16D16BECC7D3B400244DFE446AF44F15BBF45EB24181E68DE38BE1731D"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/fs-extra/-/fs-extra-10.1.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:graceful-fs@4.2.11:node_modules/graceful-fs",
+      "name": "graceful-fs",
+      "version": "4.2.11",
+      "purl": "pkg:npm/graceful-fs@4.2.11",
+      "licenses": [
+        {
+          "license": {
+            "id": "ISC"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/graceful-fs"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/graceful-fs/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "45B279FE398570D342703579A3D7939C12C9FC7B33595D0FEF76DCF857F89D2FEB263F98692E881B288E2F45680585FE9755AB97793ADE1FCAAC7FA7849D17BD"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.2.11.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:immediate@3.0.6:node_modules/immediate",
+      "name": "immediate",
+      "version": "3.0.6",
+      "purl": "pkg:npm/immediate@3.0.6",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/immediate"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/immediate/LICENSE.txt"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "5D7385B72A838CD0C043155F631B85EE0F4897F21B5A69A5420D8C60A387F04C484F5AA0EB1738CF24B71DA10401382CD5BB5FCF1AB5E5C894898EE08D25D119"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/immediate/-/immediate-3.0.6.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:inherits@2.0.4:node_modules/inherits",
+      "name": "inherits",
+      "version": "2.0.4",
+      "purl": "pkg:npm/inherits@2.0.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "ISC"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/inherits"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/inherits/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "93FBC6697E3F6256B75B3C8C0AF4D039761E207BEA38AB67A8176ECD31E9CE9419CC0B2428C859D8AF849C189233DCC64A820578CA572B16B8758799210A9EC1"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/inherits/-/inherits-2.0.4.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:isarray@1.0.0:node_modules/isarray",
+      "name": "isarray",
+      "version": "1.0.0",
+      "purl": "pkg:npm/isarray@1.0.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/isarray"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-VLghIWNM6ELQzo7zwmcg0NmTVyWKYjvIeM83yjp0wRDTmUnrM678fQbcKBo6n2CJEF0szoG//ytg+TKla89ALQ=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "none-found-at-package-root"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "54B82121634CE842D0CE8EF3C26720D0D99357258A623BC878CF37CA3A74C110D39949EB33AEFC7D06DC281A3A9F6089105D2CCE81BFFF2B60F932A56BCF402D"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/isarray/-/isarray-1.0.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:js-yaml@4.3.2:node_modules/js-yaml",
+      "name": "js-yaml",
+      "version": "4.3.2",
+      "purl": "pkg:npm/js-yaml@4.3.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/js-yaml"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-SFNOvSJ+Dgf/9An904Yx+CgSlIPCkIpao4qo51lpee25TIRejdH3rhR4EZMGoNx3/TP3O+wzWuiTFl4sqbltzA=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/js-yaml/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "48534EBD227E0E07FFF409FDD38631F828129483C2908A5AA38AA8E7596979EDB94C845E8DD1F7AE1478119306A0DC77FD33F73BEC335AE893165E2CA9B96DCC"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/js-yaml/-/js-yaml-4.3.2.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:jsonfile@6.2.1:node_modules/jsonfile",
+      "name": "jsonfile",
+      "version": "6.2.1",
+      "purl": "pkg:npm/jsonfile@6.2.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/jsonfile"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-zwOTdL3rFQ/lRdBnntKVOX6k5cKJwEc1HdilT71BWEu7J41gXIB2MRp+vxduPSwZJPWBxEzv4yH1wYLJGUHX4Q=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/jsonfile/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "CF039374BDEB150FE545D0679ED295397EA4E5C289C047351DD8A54FBD41584BBB278D605C8076311A7EBF176E3D2C1924F581C44CEFE321F5C182C91941D7E1"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/jsonfile/-/jsonfile-6.2.1.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:jszip@3.10.1:node_modules/jszip",
+      "name": "jszip",
+      "version": "3.10.1",
+      "purl": "pkg:npm/jszip@3.10.1",
+      "licenses": [
+        {
+          "expression": "(MIT OR GPL-3.0-or-later)"
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/jszip"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-xXDvecyTpGLrqFrvkrUSoxxfJI5AH7U8zxxtVclpsUtMCq4JQ290LY8AW5c7Ggnr/Y/oK+bQMbqK2qmtk3pN4g=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/jszip/LICENSE.markdown"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "C570EF79CC93A462EBA85AEF92B512A31C5F248E401FB53CCF1C6D55C969B14B4C0AAE09436F742D8F005B973B1A09EBFD8FE82BE6D031BA8ADAA9AD937A4DE2"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/jszip/-/jszip-3.10.1.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:lazy-val@1.0.5:node_modules/lazy-val",
+      "name": "lazy-val",
+      "version": "1.0.5",
+      "purl": "pkg:npm/lazy-val@1.0.5",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/lazy-val"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-0/BnGCCfyUMkBpeDgWihanIAF9JmZhHBgUhEqzvf+adhNGLoP6TaiI5oF8oyb3I45P+PcnrqihSf01M0l0G5+Q=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "none-found-at-package-root"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "D3F06718209FC943240697838168A16A720017D2666611C1814844AB3BDFF9A7613462E83FA4DA888E6817CA326F7238E4FF8F727AEA8A149FD353349741B9F9"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/lazy-val/-/lazy-val-1.0.5.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:lie@3.3.0:node_modules/lie",
+      "name": "lie",
+      "version": "3.3.0",
+      "purl": "pkg:npm/lie@3.3.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/lie"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-UaiMJzeWRlEujzAuw5LokY1L5ecNQYZKfmyZ9L7wDHb/p5etKaxXhohBcrw0EYby+G/NA52vRSN4N39dxHAIwQ=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/lie/license.md"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "51A88C27379646512E8F302EC392E8918D4BE5E70D41864A7E6C99F4BEF00C76FFA797AD29AC5786884172BC341186F2F86FCD039DAF452378377F5DC47008C1"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/lie/-/lie-3.3.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:lodash.escaperegexp@4.1.2:node_modules/lodash.escaperegexp",
+      "name": "lodash.escaperegexp",
+      "version": "4.1.2",
+      "purl": "pkg:npm/lodash.escaperegexp@4.1.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/lodash.escaperegexp"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-TM9YBvyC84ZxE3rgfefxUWiQKLilstD6k7PTGt6wfbtXF8ixIJLOL3VYyV/z+ZiPLsVxAsKAFVwWlWeb2Y8Yyw=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/lodash.escaperegexp/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "4CCF5806FC82F38671137AE07DE7F151689028B8A5B2D0FA93B3D31ADEB07DBB5717C8B12092CE2F7558C95FF3F9988F2EC57102C280155C1695679BD98F18CB"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/lodash.escaperegexp/-/lodash.escaperegexp-4.1.2.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:lodash.isequal@4.5.0:node_modules/lodash.isequal",
+      "name": "lodash.isequal",
+      "version": "4.5.0",
+      "purl": "pkg:npm/lodash.isequal@4.5.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/lodash.isequal"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/lodash.isequal/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "A43A3796EF0985F8EA96CE8690C8296A1B05F640B26B2860CA48F22CC3454CA5ABA5574042D6320789AE00C5A8CC10788A0FDDB56026B0CC4B108F30BB3F8361"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/lodash.isequal/-/lodash.isequal-4.5.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:lodash@4.18.1:node_modules/lodash",
+      "name": "lodash",
+      "version": "4.18.1",
+      "purl": "pkg:npm/lodash@4.18.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/lodash"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/lodash/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "74C22789C4CF544F1DD5EE68B5FC269A3971919A14A6254BC32793754B22FC26A3FE07F3CDB941702139B111D5FC0B23B829B15ABB5ED93346498B82782ABED1"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/lodash/-/lodash-4.18.1.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:ms@2.1.3:node_modules/ms",
+      "name": "ms",
+      "version": "2.1.3",
+      "purl": "pkg:npm/ms@2.1.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/ms"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/ms/license.md"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "E85973B9B4CB646DC9D9AFCD542025784863CEAE68C601F268253DC985EF70BB2FA1568726AFECE715C8EBF5D73FAB73ED1F7100EB479D23BFB57B45DD645394"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/ms/-/ms-2.1.3.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:pako@1.0.11:node_modules/pako",
+      "name": "pako",
+      "version": "1.0.11",
+      "purl": "pkg:npm/pako@1.0.11",
+      "licenses": [
+        {
+          "expression": "(MIT AND Zlib)"
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/pako"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/pako/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "E212C1F0FCB8CD971EE6CE3277D5F3A29AB056FFF218D855D4197C353982AB5EFADC778ADBE130553BFE95E19E2F5DC39E1DB07DBAA8C153D70883B4CF8B5A63"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/pako/-/pako-1.0.11.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:pdfjs-dist@6.3.289:node_modules/pdfjs-dist",
+      "name": "pdfjs-dist",
+      "version": "6.3.289",
+      "purl": "pkg:npm/pdfjs-dist@6.3.289",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/pdfjs-dist"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-ZHjSVpDa3D6izMq8/04lvkhkATUmL9px6ChPaXc1k6nU2Mrhlg1/7F0bdUqCwUjw3NsPTfPZsMDUU6ZIcRaeQw=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/pdfjs-dist/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "6478D25690DADC3EA2CCCABCFF4E25BE48640135262FDA71E8284F69773593A9D4D8CAE1960D7FEC5D1B754A82C148F0DCDB0F4DF3D9B0C0D453A64871169E43"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-6.3.289.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:pptx-preview@1.0.7:node_modules/pptx-preview",
+      "name": "pptx-preview",
+      "version": "1.0.7",
+      "purl": "pkg:npm/pptx-preview@1.0.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "ISC"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/pptx-preview"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-YByocJuyxAR4YB4Q3+VAxdLfEvA5LojG1gAJsx2Mw0QU5FJPps/2fkJOupJ6oBbA+KdWRpuAk6G6T34rKCHVxw=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "none-found-at-package-root"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "601CA8709BB2C40478601E10DFE540C5D2DF12F0392E88C6D60009B31D8CC34414E4524FA6CFF67E424EBA927AA016C0F8A756469B8093A1BA4F7E2B2821D5C7"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/pptx-preview/-/pptx-preview-1.0.7.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:process-nextick-args@2.0.1:node_modules/process-nextick-args",
+      "name": "process-nextick-args",
+      "version": "2.0.1",
+      "purl": "pkg:npm/process-nextick-args@2.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/process-nextick-args"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/process-nextick-args/license.md"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "DE8B943A9421B60ADB39AD7B27BFAEC4E4E92136166863FBFC0868477F80FBFD5EF6C92BCDE9468BF757CC4632BDBC6E6C417A5A7DB2A6C7132A22891459F56A"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/process-nextick-args/-/process-nextick-args-2.0.1.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:react-dom@19.2.7:node_modules/react-dom",
+      "name": "react-dom",
+      "version": "19.2.7",
+      "purl": "pkg:npm/react-dom@19.2.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/react-dom"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-t0BRVXvbiE/o20Hfw669rLbMCDWtYZLvmJigy2f0MxsXF+71pxhR3xOkspmsO8h3ZlNzyibAmtCa3l4lYKk6gQ=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/react-dom/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "B74051557BDB884FE8DB41DFC3AEBDACB6CC0835AD6192EF9898A0CB67F4331B1717EEF5A71851DF13A4B299AC3BC877665373CA26C09AD09ADE5E2560A93A81"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/react-dom/-/react-dom-19.2.7.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:react@19.2.7:node_modules/react",
+      "name": "react",
+      "version": "19.2.7",
+      "purl": "pkg:npm/react@19.2.7",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/react"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-HNe9WslTbXmFK8o8cmwgAeJFSBvt1bPdHCVKtaaV+WlAN36mpT4hcRpwbf3fY56ar2oIXzsBpOAiIRHAdY0OlQ=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/react/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "1CD7BD5AC9536D79852BCA3C726C2001E245481BEDD5B3DD1C254AB5A695F96940377EA6A53E21711A706DFDDF639E9AAF6A085F3B01A4E0222111C0758D0E95"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/react/-/react-19.2.7.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:readable-stream@2.3.8:node_modules/jszip/node_modules/readable-stream",
+      "name": "readable-stream",
+      "version": "2.3.8",
+      "purl": "pkg:npm/readable-stream@2.3.8",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/jszip/node_modules/readable-stream"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-8p0AUk4XODgIewSi0l8Epjs+EVnWiK7NoDIEGU0HhE7+ZyY8D1IMY7odu5lRrFXGg71L15KG8QrPmum45RTtdA=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/jszip/node_modules/readable-stream/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "F29D00524E173838087B04A2D25F04A63B3E1159D688AECDA03204194D07844EFE67263C0F520C63BA1DBB9951AC55C683BD4BD79286F10ACF9AE9B8E514ED74"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/readable-stream/-/readable-stream-2.3.8.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:safe-buffer@5.1.2:node_modules/jszip/node_modules/safe-buffer",
+      "name": "safe-buffer",
+      "version": "5.1.2",
+      "purl": "pkg:npm/safe-buffer@5.1.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/jszip/node_modules/safe-buffer"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/jszip/node_modules/safe-buffer/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "19DD94641243917958EC66C9C5FB04F3F9EF2A45045351B7F1CD6C88DE903FA6BD3D3F4C98707C1A7A6C71298C252A05F0B388AEDF2E77FC0FB688F2B381BAFA"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.1.2.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:sax@1.6.0:node_modules/sax",
+      "name": "sax",
+      "version": "1.6.0",
+      "purl": "pkg:npm/sax@1.6.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "BlueOak-1.0.0"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/sax"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-6R3J5M4AcbtLUdZmRv2SygeVaM7IhrLXu9BmnOGmmACak8fiUtOsYNWUS4uK7upbmHIBbLBeFeI//477BKLBzA=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/sax/LICENSE.md"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "E91DC9E4CE0071BB4B51D66646FD92CA079568CEC886B2D7BBD0669CE1A698009A93C7E252D3AC60D5944B8B8AEEEA5B9872016CB05E15E23FFF8EFB04A2C1CC"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/sax/-/sax-1.6.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:scheduler@0.27.0:node_modules/scheduler",
+      "name": "scheduler",
+      "version": "0.27.0",
+      "purl": "pkg:npm/scheduler@0.27.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/scheduler"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/scheduler/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "78DBFE5AB55B2AED5FDEF6D8253FF1B62179B320391CF20CB5FF48818FE72A0D2C5AACC0504BEA63FC66ECE71973FA9A7CBC7F88EF4580E99E480A78BF9B62FD"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/scheduler/-/scheduler-0.27.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:semver@7.7.4:node_modules/electron-updater/node_modules/semver",
+      "name": "semver",
+      "version": "7.7.4",
+      "purl": "pkg:npm/semver@7.7.4",
+      "licenses": [
+        {
+          "license": {
+            "id": "ISC"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/electron-updater/node_modules/semver"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/electron-updater/node_modules/semver/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "BC5282D8812D427561A53EFC875629F30CF0ADFF0233E33328C1C62597C1B738593727111675EC1E4E84E53C4892432C80D4BB99D5F700607BC7640CD9D8B894"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/semver/-/semver-7.7.4.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:setimmediate@1.0.5:node_modules/setimmediate",
+      "name": "setimmediate",
+      "version": "1.0.5",
+      "purl": "pkg:npm/setimmediate@1.0.5",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/setimmediate"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-MATJdZp8sLqDl/68LfQmbP8zKPLQNV6BIZoIgrscFDQ+RsvK/BxeDQOgyxKKoh0y/8h3BqVFnCqQ/gd+reiIXA=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/setimmediate/LICENSE.txt"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "3004C9759A7CB0BA8397FEBC2DF4266CFF3328F2D0355E81219A0882BB1C14343E46CBCAFC1C5E0D03A0CB128AA21D32FFC87706A5459C2A90FE077EADE8885C"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/setimmediate/-/setimmediate-1.0.5.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:string_decoder@1.1.1:node_modules/jszip/node_modules/string_decoder",
+      "name": "string_decoder",
+      "version": "1.1.1",
+      "purl": "pkg:npm/string_decoder@1.1.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/jszip/node_modules/string_decoder"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-n/ShnvDi6FHbbVfviro+WojiFzv+s8MPMHBczVePfUpDJLwoLT0ht1l4YwBCbi8pJAveEEdnkHyPyTP/mzRfwg=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/jszip/node_modules/string_decoder/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "9FF4A19EF0E2E851DB6D57EF8ABA3E5A88E2173BFEB3C30F30705CCD578F7D4A4324BC282D3D21B759786300426E2F29240BDE104767907C8FC933FF9B345FC2"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/string_decoder/-/string_decoder-1.1.1.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:tiny-typed-emitter@2.1.0:node_modules/tiny-typed-emitter",
+      "name": "tiny-typed-emitter",
+      "version": "2.1.0",
+      "purl": "pkg:npm/tiny-typed-emitter@2.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/tiny-typed-emitter"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-qVtvMxeXbVej0cQWKqVSSAHmKZEHAvxdF8HEUBFWts8h+xEo5m/lEiPakuyZ3BnCBjOD8i24kzNOiOLLgsSxhA=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/tiny-typed-emitter/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "A95B6F3317976D57A3D1C4162AA5524801E629910702FC5D17C1C4501156B6CF21FB1128E66FE51223DA92EC99DC19C2063383F22DB893334E88E2CB82C4B184"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/tiny-typed-emitter/-/tiny-typed-emitter-2.1.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:tslib@2.3.0:node_modules/echarts/node_modules/tslib",
+      "name": "tslib",
+      "version": "2.3.0",
+      "purl": "pkg:npm/tslib@2.3.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "0BSD"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/echarts/node_modules/tslib"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-N82ooyxVNm6h1riLCoyS9e3fuJ3AMG2zIZs2Gd1ATcSFjSA23Q0fzjjZeh0jbJvWVDZ0cJT8yaNNaaXHzueNjg=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/echarts/node_modules/tslib/LICENSE.txt"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "37CDA8A32C55366EA1D6B88B0A8C92F5EDDFB89DC0306DB3219B3619DD404DC4858D2036DD0D1FCE38D97A1D236C9BD65436747094FCC9A34D69A5C7CEE78D8E"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/tslib/-/tslib-2.3.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:tslib@2.3.0:node_modules/zrender/node_modules/tslib",
+      "name": "tslib",
+      "version": "2.3.0",
+      "purl": "pkg:npm/tslib@2.3.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "0BSD"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/zrender/node_modules/tslib"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-N82ooyxVNm6h1riLCoyS9e3fuJ3AMG2zIZs2Gd1ATcSFjSA23Q0fzjjZeh0jbJvWVDZ0cJT8yaNNaaXHzueNjg=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/zrender/node_modules/tslib/LICENSE.txt"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "37CDA8A32C55366EA1D6B88B0A8C92F5EDDFB89DC0306DB3219B3619DD404DC4858D2036DD0D1FCE38D97A1D236C9BD65436747094FCC9A34D69A5C7CEE78D8E"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/tslib/-/tslib-2.3.0.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:tslib@2.8.1:node_modules/tslib",
+      "name": "tslib",
+      "version": "2.8.1",
+      "purl": "pkg:npm/tslib@2.8.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "0BSD"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/tslib"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/tslib/LICENSE.txt"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "A0916EF781D06FE29576E49440BEF09E99AA9DF98BB0E03F9C087A6FA107D30084A0AD3F98F79753A737C0A0D5F373243AE1CF447B525CA294F7D2016B34BFDB"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/tslib/-/tslib-2.8.1.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:universalify@2.0.1:node_modules/universalify",
+      "name": "universalify",
+      "version": "2.0.1",
+      "purl": "pkg:npm/universalify@2.0.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/universalify"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/universalify/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "829B4735082120D9DCFEF4C6224D12385185357C3B255AE5454B42A2725196F6B0E83B97D303B925E928F6C5AB301861F8FB18019EE85C088E9DFFD42A88328B"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/universalify/-/universalify-2.0.1.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:util-deprecate@1.0.2:node_modules/util-deprecate",
+      "name": "util-deprecate",
+      "version": "1.0.2",
+      "purl": "pkg:npm/util-deprecate@1.0.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/util-deprecate"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/util-deprecate/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "10F0F9AB5B97C85C49A42ACB9C27359C79EADE039AE83641A1C008888D93692080ED5089D5424331A802CC891736C5187C3D5D68AFFF2D3110F318886EB1ED73"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:uuid@11.1.1:node_modules/uuid",
+      "name": "uuid",
+      "version": "11.1.1",
+      "purl": "pkg:npm/uuid@11.1.1",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/uuid"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-vIYxrBCC/N/K+Js3qSN88go7kIfNPssr/hHCesKCQNAjmgvYS2oqr69kIufEG+O4+PfezOH4EbIeHCfFov8ZgQ=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/uuid/LICENSE.md"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "BC8631AC1082FCDFCAF89B37A9237CF20A3B9087CD3ECB2BFE11C27AC28240D0239A0BD84B6A2AAFAF6422E7C41BE3B8F8F7DECCE1F811B21E1C27C5A2FF1981"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/uuid/-/uuid-11.1.1.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:xlsx@0.20.3:node_modules/xlsx",
+      "name": "xlsx",
+      "version": "0.20.3",
+      "purl": "pkg:npm/xlsx@0.20.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/xlsx"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-oLDq3jw7AcLqKWH2AhCpVTZl8mf6X2YReP+Neh0SJUzV/BdZYjth94tG5toiMB1PPrYtxOCfaoUCkvtuH+3AJA=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/xlsx/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "A0B0EADE3C3B01C2EA2961F60210A9553665F267FA5F661178FF8D7A1D12254CD5FC1759623B61F78B46E6DA22301D4F3EB62DC4E09F6A850292FB6E1FEDC024"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "npm:zrender@6.1.0:node_modules/zrender",
+      "name": "zrender",
+      "version": "6.1.0",
+      "purl": "pkg:npm/zrender@6.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "ssgkimchi:inventory:package-path",
+          "value": "node_modules/zrender"
+        },
+        {
+          "name": "ssgkimchi:inventory:scope",
+          "value": "declared-production-closure"
+        },
+        {
+          "name": "ssgkimchi:npm:dev-flag",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:platform-constrained-optional",
+          "value": "false"
+        },
+        {
+          "name": "ssgkimchi:npm:integrity",
+          "value": "sha512-oEGMDB6pOP2S6OwRR4PdVv610zrjnA3Bh+JnSG12fYJlBKjtNAoEb5fSUoCOOINlH96I2fU38/A2UpRKs67xYQ=="
+        },
+        {
+          "name": "ssgkimchi:notices:license-files",
+          "value": "node_modules/zrender/LICENSE"
+        }
+      ],
+      "hashes": [
+        {
+          "algorithm": "SHA-512",
+          "content": "A0418C0C1EA938FD92E8EC114783DD56FEB5D33AE39C0DC187E267486D767D826504A8ED340A046F97D252808E3883651FDE88D9F537F3F03652944AB3AEF161"
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/zrender/-/zrender-6.1.0.tgz"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "app:ssgkimchi-hangeul-viewer@0.2.0",
+      "dependsOn": [
+        "npm:@rhwp/core@0.7.19:node_modules/@rhwp/core",
+        "npm:docx-preview@0.3.7:node_modules/docx-preview",
+        "npm:dompurify@3.4.14:node_modules/dompurify",
+        "npm:electron-updater@6.8.9:node_modules/electron-updater",
+        "npm:electron@42.10.1:node_modules/electron",
+        "npm:pdfjs-dist@6.3.289:node_modules/pdfjs-dist",
+        "npm:pptx-preview@1.0.7:node_modules/pptx-preview",
+        "npm:react-dom@19.2.7:node_modules/react-dom",
+        "npm:react@19.2.7:node_modules/react",
+        "npm:xlsx@0.20.3:node_modules/xlsx"
+      ]
+    },
+    {
+      "ref": "asset:electron:chromium-runtime",
+      "dependsOn": []
+    },
+    {
+      "ref": "asset:pdfjs:adobe-cmaps",
+      "dependsOn": []
+    },
+    {
+      "ref": "asset:pdfjs:foxit-standard-fonts",
+      "dependsOn": []
+    },
+    {
+      "ref": "asset:pdfjs:liberation-sans-fonts",
+      "dependsOn": []
+    },
+    {
+      "ref": "asset:rhwp:rhwp-bg-wasm",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:@napi-rs/canvas-android-arm64@1.0.0:node_modules/@napi-rs/canvas-android-arm64",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:@napi-rs/canvas-darwin-arm64@1.0.0:node_modules/@napi-rs/canvas-darwin-arm64",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:@napi-rs/canvas-darwin-x64@1.0.0:node_modules/@napi-rs/canvas-darwin-x64",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:@napi-rs/canvas-linux-arm-gnueabihf@1.0.0:node_modules/@napi-rs/canvas-linux-arm-gnueabihf",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:@napi-rs/canvas-linux-arm64-gnu@1.0.0:node_modules/@napi-rs/canvas-linux-arm64-gnu",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:@napi-rs/canvas-linux-arm64-musl@1.0.0:node_modules/@napi-rs/canvas-linux-arm64-musl",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:@napi-rs/canvas-linux-riscv64-gnu@1.0.0:node_modules/@napi-rs/canvas-linux-riscv64-gnu",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:@napi-rs/canvas-linux-x64-gnu@1.0.0:node_modules/@napi-rs/canvas-linux-x64-gnu",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:@napi-rs/canvas-linux-x64-musl@1.0.0:node_modules/@napi-rs/canvas-linux-x64-musl",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:@napi-rs/canvas-win32-arm64-msvc@1.0.0:node_modules/@napi-rs/canvas-win32-arm64-msvc",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:@napi-rs/canvas-win32-x64-msvc@1.0.0:node_modules/@napi-rs/canvas-win32-x64-msvc",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:@napi-rs/canvas@1.0.0:node_modules/@napi-rs/canvas",
+      "dependsOn": [
+        "npm:@napi-rs/canvas-android-arm64@1.0.0:node_modules/@napi-rs/canvas-android-arm64",
+        "npm:@napi-rs/canvas-darwin-arm64@1.0.0:node_modules/@napi-rs/canvas-darwin-arm64",
+        "npm:@napi-rs/canvas-darwin-x64@1.0.0:node_modules/@napi-rs/canvas-darwin-x64",
+        "npm:@napi-rs/canvas-linux-arm-gnueabihf@1.0.0:node_modules/@napi-rs/canvas-linux-arm-gnueabihf",
+        "npm:@napi-rs/canvas-linux-arm64-gnu@1.0.0:node_modules/@napi-rs/canvas-linux-arm64-gnu",
+        "npm:@napi-rs/canvas-linux-arm64-musl@1.0.0:node_modules/@napi-rs/canvas-linux-arm64-musl",
+        "npm:@napi-rs/canvas-linux-riscv64-gnu@1.0.0:node_modules/@napi-rs/canvas-linux-riscv64-gnu",
+        "npm:@napi-rs/canvas-linux-x64-gnu@1.0.0:node_modules/@napi-rs/canvas-linux-x64-gnu",
+        "npm:@napi-rs/canvas-linux-x64-musl@1.0.0:node_modules/@napi-rs/canvas-linux-x64-musl",
+        "npm:@napi-rs/canvas-win32-arm64-msvc@1.0.0:node_modules/@napi-rs/canvas-win32-arm64-msvc",
+        "npm:@napi-rs/canvas-win32-x64-msvc@1.0.0:node_modules/@napi-rs/canvas-win32-x64-msvc"
+      ]
+    },
+    {
+      "ref": "npm:@rhwp/core@0.7.19:node_modules/@rhwp/core",
+      "dependsOn": [
+        "asset:rhwp:rhwp-bg-wasm"
+      ]
+    },
+    {
+      "ref": "npm:@types/trusted-types@2.0.7:node_modules/@types/trusted-types",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:argparse@2.0.1:node_modules/argparse",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:builder-util-runtime@9.7.0:node_modules/builder-util-runtime",
+      "dependsOn": [
+        "npm:debug@4.4.3:node_modules/debug",
+        "npm:sax@1.6.0:node_modules/sax"
+      ]
+    },
+    {
+      "ref": "npm:core-util-is@1.0.3:node_modules/core-util-is",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:debug@4.4.3:node_modules/debug",
+      "dependsOn": [
+        "npm:ms@2.1.3:node_modules/ms"
+      ]
+    },
+    {
+      "ref": "npm:docx-preview@0.3.7:node_modules/docx-preview",
+      "dependsOn": [
+        "npm:jszip@3.10.1:node_modules/jszip"
+      ]
+    },
+    {
+      "ref": "npm:dompurify@3.4.14:node_modules/dompurify",
+      "dependsOn": [
+        "npm:@types/trusted-types@2.0.7:node_modules/@types/trusted-types"
+      ]
+    },
+    {
+      "ref": "npm:echarts@6.1.0:node_modules/echarts",
+      "dependsOn": [
+        "npm:tslib@2.3.0:node_modules/echarts/node_modules/tslib",
+        "npm:zrender@6.1.0:node_modules/zrender"
+      ]
+    },
+    {
+      "ref": "npm:electron-updater@6.8.9:node_modules/electron-updater",
+      "dependsOn": [
+        "npm:builder-util-runtime@9.7.0:node_modules/builder-util-runtime",
+        "npm:fs-extra@10.1.0:node_modules/fs-extra",
+        "npm:js-yaml@4.3.2:node_modules/js-yaml",
+        "npm:lazy-val@1.0.5:node_modules/lazy-val",
+        "npm:lodash.escaperegexp@4.1.2:node_modules/lodash.escaperegexp",
+        "npm:lodash.isequal@4.5.0:node_modules/lodash.isequal",
+        "npm:semver@7.7.4:node_modules/electron-updater/node_modules/semver",
+        "npm:tiny-typed-emitter@2.1.0:node_modules/tiny-typed-emitter"
+      ]
+    },
+    {
+      "ref": "npm:electron@42.10.1:node_modules/electron",
+      "dependsOn": [
+        "asset:electron:chromium-runtime"
+      ]
+    },
+    {
+      "ref": "npm:fs-extra@10.1.0:node_modules/fs-extra",
+      "dependsOn": [
+        "npm:graceful-fs@4.2.11:node_modules/graceful-fs",
+        "npm:jsonfile@6.2.1:node_modules/jsonfile",
+        "npm:universalify@2.0.1:node_modules/universalify"
+      ]
+    },
+    {
+      "ref": "npm:graceful-fs@4.2.11:node_modules/graceful-fs",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:immediate@3.0.6:node_modules/immediate",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:inherits@2.0.4:node_modules/inherits",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:isarray@1.0.0:node_modules/isarray",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:js-yaml@4.3.2:node_modules/js-yaml",
+      "dependsOn": [
+        "npm:argparse@2.0.1:node_modules/argparse"
+      ]
+    },
+    {
+      "ref": "npm:jsonfile@6.2.1:node_modules/jsonfile",
+      "dependsOn": [
+        "npm:graceful-fs@4.2.11:node_modules/graceful-fs",
+        "npm:universalify@2.0.1:node_modules/universalify"
+      ]
+    },
+    {
+      "ref": "npm:jszip@3.10.1:node_modules/jszip",
+      "dependsOn": [
+        "npm:lie@3.3.0:node_modules/lie",
+        "npm:pako@1.0.11:node_modules/pako",
+        "npm:readable-stream@2.3.8:node_modules/jszip/node_modules/readable-stream",
+        "npm:setimmediate@1.0.5:node_modules/setimmediate"
+      ]
+    },
+    {
+      "ref": "npm:lazy-val@1.0.5:node_modules/lazy-val",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:lie@3.3.0:node_modules/lie",
+      "dependsOn": [
+        "npm:immediate@3.0.6:node_modules/immediate"
+      ]
+    },
+    {
+      "ref": "npm:lodash.escaperegexp@4.1.2:node_modules/lodash.escaperegexp",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:lodash.isequal@4.5.0:node_modules/lodash.isequal",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:lodash@4.18.1:node_modules/lodash",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:ms@2.1.3:node_modules/ms",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:pako@1.0.11:node_modules/pako",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:pdfjs-dist@6.3.289:node_modules/pdfjs-dist",
+      "dependsOn": [
+        "asset:pdfjs:adobe-cmaps",
+        "asset:pdfjs:foxit-standard-fonts",
+        "asset:pdfjs:liberation-sans-fonts",
+        "npm:@napi-rs/canvas@1.0.0:node_modules/@napi-rs/canvas"
+      ]
+    },
+    {
+      "ref": "npm:pptx-preview@1.0.7:node_modules/pptx-preview",
+      "dependsOn": [
+        "npm:echarts@6.1.0:node_modules/echarts",
+        "npm:jszip@3.10.1:node_modules/jszip",
+        "npm:lodash@4.18.1:node_modules/lodash",
+        "npm:tslib@2.8.1:node_modules/tslib",
+        "npm:uuid@11.1.1:node_modules/uuid"
+      ]
+    },
+    {
+      "ref": "npm:process-nextick-args@2.0.1:node_modules/process-nextick-args",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:react-dom@19.2.7:node_modules/react-dom",
+      "dependsOn": [
+        "npm:react@19.2.7:node_modules/react",
+        "npm:scheduler@0.27.0:node_modules/scheduler"
+      ]
+    },
+    {
+      "ref": "npm:react@19.2.7:node_modules/react",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:readable-stream@2.3.8:node_modules/jszip/node_modules/readable-stream",
+      "dependsOn": [
+        "npm:core-util-is@1.0.3:node_modules/core-util-is",
+        "npm:inherits@2.0.4:node_modules/inherits",
+        "npm:isarray@1.0.0:node_modules/isarray",
+        "npm:process-nextick-args@2.0.1:node_modules/process-nextick-args",
+        "npm:safe-buffer@5.1.2:node_modules/jszip/node_modules/safe-buffer",
+        "npm:string_decoder@1.1.1:node_modules/jszip/node_modules/string_decoder",
+        "npm:util-deprecate@1.0.2:node_modules/util-deprecate"
+      ]
+    },
+    {
+      "ref": "npm:safe-buffer@5.1.2:node_modules/jszip/node_modules/safe-buffer",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:sax@1.6.0:node_modules/sax",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:scheduler@0.27.0:node_modules/scheduler",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:semver@7.7.4:node_modules/electron-updater/node_modules/semver",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:setimmediate@1.0.5:node_modules/setimmediate",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:string_decoder@1.1.1:node_modules/jszip/node_modules/string_decoder",
+      "dependsOn": [
+        "npm:safe-buffer@5.1.2:node_modules/jszip/node_modules/safe-buffer"
+      ]
+    },
+    {
+      "ref": "npm:tiny-typed-emitter@2.1.0:node_modules/tiny-typed-emitter",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:tslib@2.3.0:node_modules/echarts/node_modules/tslib",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:tslib@2.3.0:node_modules/zrender/node_modules/tslib",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:tslib@2.8.1:node_modules/tslib",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:universalify@2.0.1:node_modules/universalify",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:util-deprecate@1.0.2:node_modules/util-deprecate",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:uuid@11.1.1:node_modules/uuid",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:xlsx@0.20.3:node_modules/xlsx",
+      "dependsOn": []
+    },
+    {
+      "ref": "npm:zrender@6.1.0:node_modules/zrender",
+      "dependsOn": [
+        "npm:tslib@2.3.0:node_modules/zrender/node_modules/tslib"
+      ]
+    }
+  ]
+}

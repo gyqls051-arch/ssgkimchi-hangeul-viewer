@@ -6,15 +6,6 @@
   background: var(--bg-stage);
 }
 
-.xlsx-banner {
-  flex: 0 0 auto;
-  padding: 6px 12px;
-  font-size: 12px;
-  color: #ffd9a0;
-  background: rgba(234, 160, 60, 0.14);
-  border-bottom: 1px solid var(--border);
-}
-
 .xlsx-host {
   flex: 1 1 auto;
   min-height: 0;
@@ -131,4 +122,59 @@
 }
 .xlsx-status--error {
   color: var(--text);
+}
+
+.xlsx-windowbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 38px;
+  padding: 5px 10px;
+  color: var(--text-dim);
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+.xlsx-windowbar__actions {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.xlsx-windowbar button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+
+.xlsx-host--empty {
+  display: flex;
+  color: var(--text);
+  background: var(--bg-stage);
+}
+
+.xlsx-tab[aria-selected='true'] {
+  background: var(--bg-stage);
+  color: var(--text);
+  border-color: var(--control-border);
+  border-bottom-color: var(--bg-stage);
+}
+
+.xlsx-status--inline {
+  flex: 0 0 auto;
+  flex-direction: row;
+  justify-content: center;
+  margin: 0;
+  padding: 8px 12px;
+  color: #fff1d6;
+  background: #5b3412;
+  border-bottom: 1px solid var(--control-border);
+}
+
+.xlsx-windowbar__status {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
 }

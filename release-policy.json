@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "channel": "stable",
+  "package": {
+    "name": "ssgkimchi-hangeul-viewer"
+  },
+  "repository": {
+    "slug": "gyqls051-arch/ssgkimchi-hangeul-viewer",
+    "url": "https://github.com/gyqls051-arch/ssgkimchi-hangeul-viewer.git",
+    "defaultBranch": "main"
+  },
+  "toolchain": {
+    "node": "22.13.0",
+    "npm": "11.17.0"
+  },
+  "release": {
+    "tagPattern": "^v(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$",
+    "allowDowngrade": false,
+    "blockedVersions": [],
+    "rollout": {
+      "defaultPercentage": 100,
+      "hotfix": {
+        "allowed": true,
+        "requiresNewVersion": true,
+        "description": "A hotfix is a new stable semantic version and follows the complete signed release pipeline."
+      },
+      "yank": {
+        "allowed": true,
+        "requiresOperatorApproval": true,
+        "description": "A yank is an operational response that blocks update rollout without reusing or replacing an existing version."
+      }
+    },
+    "legal": {
+      "license": "SEE LICENSE IN LICENSE",
+      "copyright": "Copyright © 2026 싹싹김치",
+      "complianceCommand": "npm run compliance:check",
+      "approvalEnvironment": "production-release"
+    }
+  },
+  "target": {
+    "platform": "win32",
+    "architecture": "x64",
+    "builderTarget": "nsis"
+  },
+  "windows": {
+    "productExecutable": "싹싹김치 한글뷰어.exe",
+    "publisherName": "REPLACE_WITH_CERTIFICATE_SIMPLE_NAME",
+    "certificateSubject": "REPLACE_WITH_EXACT_CERTIFICATE_SUBJECT",
+    "certificateThumbprint": "REPLACE_WITH_NORMALIZED_CERTIFICATE_THUMBPRINT",
+    "requireTimestamp": true
+  },
+  "artifacts": {
+    "installerTemplate": "ssgkimchi-hangeul-viewer-{version}-setup.exe",
+    "blockmapTemplate": "ssgkimchi-hangeul-viewer-{version}-setup.exe.blockmap",
+    "updateMetadata": "latest.yml",
+    "checksums": "SHA256SUMS",
+    "manifest": "release-manifest.json"
+  }
+}

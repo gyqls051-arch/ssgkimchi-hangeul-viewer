@@ -9,17 +9,22 @@ type RenderTask = ReturnType<PDFPageProxy['render']>
 
 /** 캔버스 한 변의 최대 백킹스토어 픽셀 (고배율·고DPR 메모리 폭증/캔버스 한계 방지) */
 const MAX_CANVAS_DIM = 4096
+const MAX_CANVAS_PIXELS = 8_000_000
 
 function isCancel(err: unknown): boolean {
   return (err as { name?: string })?.name === 'RenderingCancelledException'
 }
 
-/** width*dpr / height*dpr 가 MAX_CANVAS_DIM 을 넘지 않도록 dpr 을 제한 */
-function clampDpr(cssWidth: number, cssHeight: number): number {
-  const dpr = window.devicePixelRatio || 1
-  const longest = Math.max(cssWidth, cssHeight)
-  if (longest * dpr <= MAX_CANVAS_DIM) return dpr
-  return Math.max(1, MAX_CANVAS_DIM / longest)
+/** backing store의 각 변과 총 픽셀 수를 동시에 제한한다. CSS viewport보다 작은 scale도 허용한다. */
+function outputScale(cssWidth: number, cssHeight: number): number {
+  if (!(cssWidth > 0) || !(cssHeight > 0) || !Number.isFinite(cssWidth + cssHeight)) return 1
+  const deviceScale = Math.max(1, window.devicePixelRatio || 1)
+  return Math.min(
+    deviceScale,
+    MAX_CANVAS_DIM / cssWidth,
+    MAX_CANVAS_DIM / cssHeight,
+    Math.sqrt(MAX_CANVAS_PIXELS / (cssWidth * cssHeight))
+  )
 }
 
 export interface LazyCanvas {
@@ -75,6 +80,9 @@ export function useLazyPageCanvas(
     let cancelled = false
     let task: RenderTask | null = null
     let textLayer: TextLayer | null = null
+    let renderedCanvas: HTMLCanvasElement | null = null
+    let renderedTextHost: HTMLDivElement | null = null
+    let renderedLinkHost: HTMLDivElement | null = null
 
     pdf
       .getPage(pageNumber)
@@ -86,15 +94,20 @@ export function useLazyPageCanvas(
         const ctx = canvas.getContext('2d')
         if (!ctx) return
 
-        const dpr = clampDpr(viewport.width, viewport.height)
-        canvas.width = Math.floor(viewport.width * dpr)
-        canvas.height = Math.floor(viewport.height * dpr)
+        const scale = outputScale(viewport.width, viewport.height)
+        canvas.width = Math.max(1, Math.floor(viewport.width * scale))
+        canvas.height = Math.max(1, Math.floor(viewport.height * scale))
         canvas.style.width = `${Math.floor(viewport.width)}px`
         canvas.style.height = `${Math.floor(viewport.height)}px`
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+        renderedCanvas = canvas
         setSize({ w: viewport.width, h: viewport.height })
 
-        task = page.render({ canvasContext: ctx, viewport, canvas })
+        task = page.render({
+          canvasContext: ctx,
+          viewport,
+          canvas,
+          transform: scale === 1 ? undefined : [scale, 0, 0, scale, 0, 0]
+        })
         task.promise.catch((err: unknown) => {
           if (!isCancel(err)) log.debug(`${pageNumber}쪽 렌더 실패`, err)
         })
@@ -102,6 +115,7 @@ export function useLazyPageCanvas(
         // 선택 가능한 텍스트 레이어 (캔버스 위 투명 텍스트)
         const tl = textLayerRef.current
         if (wantTextLayer && tl) {
+          renderedTextHost = tl
           tl.replaceChildren()
           // v6 텍스트레이어는 --total-scale-factor 를 사용한다 (구버전 --scale-factor 아님)
           tl.style.setProperty('--total-scale-factor', String(viewport.scale))
@@ -131,6 +145,7 @@ export function useLazyPageCanvas(
         // 외부 URL 링크 주석 → 클릭 가능한 <a> 오버레이
         const ll = linkLayerRef.current
         if (wantLinkLayer && ll) {
+          renderedLinkHost = ll
           ll.replaceChildren()
           page
             .getAnnotations()
@@ -142,14 +157,12 @@ export function useLazyPageCanvas(
                 rect?: number[]
               }>) {
                 if (a.subtype !== 'Link' || !a.url || !a.rect) continue
-                // href 주입 전 스킴 화이트리스트 검사: http(s)만 허용
-                // (javascript:, file:, data: 등 위험 스킴은 <a> 자체를 만들지 않음)
+                // href 주입 전 스킴 화이트리스트 검사: HTTPS만 허용
+                // (http:, javascript:, file:, data: 등은 <a> 자체를 만들지 않음)
                 let safeHref: string | null = null
                 try {
                   const parsed = new URL(a.url)
-                  if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
-                    safeHref = parsed.href
-                  }
+                  if (parsed.protocol === 'https:') safeHref = parsed.href
                 } catch {
                   safeHref = null
                 }
@@ -164,6 +177,8 @@ export function useLazyPageCanvas(
                 link.href = safeHref
                 link.className = 'pdf-link'
                 link.rel = 'noreferrer'
+                link.setAttribute('aria-label', `${new URL(safeHref).hostname} 외부 링크`)
+                link.title = safeHref
                 link.style.left = `${x}px`
                 link.style.top = `${y}px`
                 link.style.width = `${Math.abs(r[2] - r[0])}px`
@@ -182,6 +197,12 @@ export function useLazyPageCanvas(
       cancelled = true
       task?.cancel()
       textLayer?.cancel()
+      renderedTextHost?.replaceChildren()
+      renderedLinkHost?.replaceChildren()
+      if (renderedCanvas) {
+        renderedCanvas.width = 0
+        renderedCanvas.height = 0
+      }
     }
   }, [inView, pdf, pageNumber, computeViewport, wantTextLayer, wantLinkLayer])
 

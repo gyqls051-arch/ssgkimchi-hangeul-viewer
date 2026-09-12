@@ -1,35 +1,407 @@
 name: Release
 
-# v로 시작하는 태그를 푸시하면(예: v0.1.0) 윈도우 설치파일을 빌드해
-# GitHub Releases 에 자동으로 올린다. 수동 실행(workflow_dispatch)도 가능.
 on:
   push:
     tags:
-      - 'v*'
-  workflow_dispatch:
+      - 'v[0-9]*.[0-9]*.[0-9]*'
 
-permissions:
-  contents: write # GITHUB_TOKEN 으로 릴리즈 생성/업로드
+permissions: {}
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  build-windows:
-    runs-on: windows-latest
+  validate:
+    name: Validate release provenance and policy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      tag: ${{ steps.release.outputs.tag }}
+      commit: ${{ steps.release.outputs.commit }}
+      repository: ${{ steps.release.outputs.repository }}
+      installer: ${{ steps.release.outputs.installer }}
+      blockmap: ${{ steps.release.outputs.blockmap }}
+      product_executable: ${{ steps.release.outputs.product_executable }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Check out complete tag history
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          node-version: 22
-          cache: npm
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: false
 
-      - name: Install dependencies
+      - name: Fetch protected main branch
+        shell: bash
+        run: git fetch --no-tags origin "+refs/heads/main:refs/remotes/origin/main"
+
+      - name: Set up exact Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22.13.0
+
+      - name: Validate stable release
+        id: release
+        shell: bash
+        run: >-
+          node scripts/validate-release.mjs
+          --tag "${GITHUB_REF_NAME}"
+          --sha "${GITHUB_SHA}"
+          --repository "${GITHUB_REPOSITORY}"
+
+  quality:
+    name: Quality and compliance gate
+    needs: validate
+    permissions:
+      contents: read
+    uses: ./.github/workflows/ci.yml
+
+  build_windows:
+    name: Build and sign Windows x64 NSIS
+    needs:
+      - validate
+      - quality
+    runs-on: windows-2022
+    timeout-minutes: 45
+    environment:
+      name: windows-signing
+    permissions:
+      contents: read
+    env:
+      npm_config_audit: 'false'
+      npm_config_fund: 'false'
+    outputs:
+      artifact_digest: ${{ steps.upload.outputs.artifact-digest }}
+    steps:
+      - name: Check out validated source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ needs.validate.outputs.commit }}
+          persist-credentials: false
+
+      - name: Set up exact Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Set up exact npm
+        run: npm install --global npm@11.17.0
+
+      - name: Verify toolchain
+        shell: pwsh
+        run: |
+          if ((node --version) -cne 'v22.13.0') { throw 'Unexpected Node.js version' }
+          if ((npm --version) -cne '11.17.0') { throw 'Unexpected npm version' }
+
+      - name: Install locked dependencies
         run: npm ci
 
-      # release:win = npm run build(=prebuild 으로 pdfjs 자산 복사 + electron-vite build)
-      #               && electron-builder --win --publish always
-      - name: Build & publish Windows installer
+      - name: Remove stale build output
+        shell: pwsh
+        run: if (Test-Path -LiteralPath 'release') { Remove-Item -LiteralPath 'release' -Recurse -Force }
+
+      - name: Build and sign without publishing
+        shell: pwsh
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run release:win
+          CSC_LINK: ${{ secrets.WINDOWS_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CSC_KEY_PASSWORD }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:CSC_LINK)) { throw 'WINDOWS_CSC_LINK is required' }
+          if ([string]::IsNullOrWhiteSpace($env:CSC_KEY_PASSWORD)) { throw 'WINDOWS_CSC_KEY_PASSWORD is required' }
+          npm run package:win
+          if ($LASTEXITCODE -ne 0) { throw 'Windows package build failed' }
+
+      - name: Smoke test packaged application and bundled resources
+        shell: pwsh
+        run: npm run verify:packaged
+
+      - name: Upload signed build for independent verification
+        id: upload
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: signed-windows-${{ needs.validate.outputs.commit }}
+          path: |
+            release/${{ needs.validate.outputs.installer }}
+            release/${{ needs.validate.outputs.blockmap }}
+            release/latest.yml
+            release/win-unpacked/${{ needs.validate.outputs.product_executable }}
+            release/win-unpacked/resources/app-update.yml
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+
+  verify:
+    name: Independently verify signed release
+    needs:
+      - validate
+      - quality
+      - build_windows
+    runs-on: windows-2022
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    env:
+      npm_config_audit: 'false'
+      npm_config_fund: 'false'
+    outputs:
+      artifact_digest: ${{ steps.upload.outputs.artifact-digest }}
+    steps:
+      - name: Check out validated source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ needs.validate.outputs.commit }}
+          persist-credentials: false
+
+      - name: Set up exact Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Set up exact npm
+        run: npm install --global npm@11.17.0
+
+      - name: Verify toolchain
+        shell: pwsh
+        run: |
+          if ((node --version) -cne 'v22.13.0') { throw 'Unexpected Node.js version' }
+          if ((npm --version) -cne '11.17.0') { throw 'Unexpected npm version' }
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Download signed build
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: signed-windows-${{ needs.validate.outputs.commit }}
+          path: release
+
+      - name: Verify Authenticode identities and timestamps
+        shell: pwsh
+        env:
+          INSTALLER_NAME: ${{ needs.validate.outputs.installer }}
+          PRODUCT_EXECUTABLE: ${{ needs.validate.outputs.product_executable }}
+        run: |
+          ./scripts/verify-authenticode.ps1 `
+            -PolicyPath 'release-policy.json' `
+            -InstallerPath (Join-Path 'release' $env:INSTALLER_NAME) `
+            -ApplicationPath (Join-Path 'release/win-unpacked' $env:PRODUCT_EXECUTABLE) `
+            -OutputPath (Join-Path $env:RUNNER_TEMP 'verified-signatures.json')
+
+      - name: Prepare deterministic release assets
+        shell: pwsh
+        run: >-
+          npm run verify:release -- prepare
+          --release-dir release
+          --assets-dir release-assets
+          --signature-report "$env:RUNNER_TEMP/verified-signatures.json"
+          --tag "${{ needs.validate.outputs.tag }}"
+          --sha "${{ needs.validate.outputs.commit }}"
+
+      - name: Reverify exact release asset set
+        shell: pwsh
+        run: >-
+          npm run verify:release -- verify
+          --assets-dir release-assets
+          --tag "${{ needs.validate.outputs.tag }}"
+          --sha "${{ needs.validate.outputs.commit }}"
+
+      - name: Upload verified release assets
+        id: upload
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-assets-${{ needs.validate.outputs.commit }}
+          path: |
+            release-assets/${{ needs.validate.outputs.installer }}
+            release-assets/${{ needs.validate.outputs.blockmap }}
+            release-assets/latest.yml
+            release-assets/SHA256SUMS
+            release-assets/release-manifest.json
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+
+  attest:
+    name: Attest verified release assets
+    needs:
+      - validate
+      - verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - name: Download verified release assets
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: release-assets-${{ needs.validate.outputs.commit }}
+          path: release-assets
+
+      - name: Attest exact verified assets
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2.4.0
+        with:
+          subject-path: release-assets/*
+
+  production_release:
+    name: Create, verify, and publish release
+    needs:
+      - validate
+      - verify
+      - attest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment:
+      name: production-release
+    permissions:
+      contents: write
+    steps:
+      - name: Download attested release assets
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: release-assets-${{ needs.validate.outputs.commit }}
+          path: release-assets
+
+      - name: Verify explicit local allowlist and checksums
+        shell: bash
+        env:
+          INSTALLER_NAME: ${{ needs.validate.outputs.installer }}
+          BLOCKMAP_NAME: ${{ needs.validate.outputs.blockmap }}
+        run: |
+          set -euo pipefail
+          expected=(
+            "$INSTALLER_NAME"
+            "$BLOCKMAP_NAME"
+            'latest.yml'
+            'SHA256SUMS'
+            'release-manifest.json'
+          )
+          shopt -s nullglob
+          actual=(release-assets/*)
+          test "${#actual[@]}" -eq "${#expected[@]}"
+          for name in "${expected[@]}"; do
+            test -f "release-assets/$name"
+            test ! -L "release-assets/$name"
+          done
+
+      - name: Verify local checksum file
+        working-directory: release-assets
+        run: sha256sum --check SHA256SUMS
+
+      - name: Create draft, verify uploaded bytes, and publish
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ needs.validate.outputs.repository }}
+          RELEASE_TAG: ${{ needs.validate.outputs.tag }}
+          RELEASE_COMMIT: ${{ needs.validate.outputs.commit }}
+          INSTALLER_NAME: ${{ needs.validate.outputs.installer }}
+          BLOCKMAP_NAME: ${{ needs.validate.outputs.blockmap }}
+        run: |
+          set -euo pipefail
+          assets=(
+            "$INSTALLER_NAME"
+            "$BLOCKMAP_NAME"
+            'latest.yml'
+            'SHA256SUMS'
+            'release-manifest.json'
+          )
+
+          verify_remote_tag() {
+            local object_json object_type object_sha depth
+            object_json="$(gh api "repos/$REPOSITORY/git/ref/tags/$RELEASE_TAG")"
+            object_type="$(jq -er '.object.type' <<<"$object_json")"
+            object_sha="$(jq -er '.object.sha' <<<"$object_json")"
+            for depth in {1..8}; do
+              if test "$object_type" = 'commit'; then
+                break
+              fi
+              if test "$object_type" != 'tag'; then
+                echo "Release tag resolves to unsupported Git object type: $object_type" >&2
+                exit 1
+              fi
+              object_json="$(gh api "repos/$REPOSITORY/git/tags/$object_sha")"
+              object_type="$(jq -er '.object.type' <<<"$object_json")"
+              object_sha="$(jq -er '.object.sha' <<<"$object_json")"
+            done
+            if test "$object_type" != 'commit' || test "$object_sha" != "$RELEASE_COMMIT"; then
+              echo 'Remote release tag does not peel to the validated commit.' >&2
+              exit 1
+            fi
+          }
+
+          verify_remote_tag
+          if gh release view "$RELEASE_TAG" --repo "$REPOSITORY" >/dev/null 2>&1; then
+            echo "A release already exists for $RELEASE_TAG; refusing to mutate it." >&2
+            exit 1
+          fi
+
+          gh release create "$RELEASE_TAG" \
+            "release-assets/$INSTALLER_NAME#Windows x64 NSIS installer" \
+            "release-assets/$BLOCKMAP_NAME#Updater blockmap" \
+            'release-assets/latest.yml#Stable update metadata' \
+            'release-assets/SHA256SUMS#SHA-256 checksums' \
+            'release-assets/release-manifest.json#Deterministic release manifest' \
+            --repo "$REPOSITORY" \
+            --target "$RELEASE_COMMIT" \
+            --verify-tag \
+            --draft \
+            --title "$RELEASE_TAG" \
+            --notes "Signed Windows x64 NSIS release for commit $RELEASE_COMMIT."
+
+          release_json="$(gh api "repos/$REPOSITORY/releases/tags/$RELEASE_TAG")"
+          release_id="$(jq -er '.id' <<<"$release_json")"
+          test "$(jq -er '.draft' <<<"$release_json")" = 'true'
+          test "$(jq -er '.prerelease' <<<"$release_json")" = 'false'
+
+          asset_json="$(gh api "repos/$REPOSITORY/releases/$release_id/assets?per_page=100")"
+          for attempt in {1..10}; do
+            missing_digests="$(jq '[.[] | select(.digest == null or (.digest | startswith("sha256:") | not))] | length' <<<"$asset_json")"
+            if test "$missing_digests" -eq 0; then
+              break
+            fi
+            if test "$attempt" -eq 10; then
+              echo 'GitHub did not report SHA-256 digests for every draft asset.' >&2
+              exit 1
+            fi
+            sleep 3
+            asset_json="$(gh api "repos/$REPOSITORY/releases/$release_id/assets?per_page=100")"
+          done
+          actual_names="$(jq -r '.[].name' <<<"$asset_json" | LC_ALL=C sort)"
+          expected_names="$(printf '%s\n' "${assets[@]}" | LC_ALL=C sort)"
+          test "$actual_names" = "$expected_names"
+
+          for name in "${assets[@]}"; do
+            local_path="release-assets/$name"
+            local_size="$(stat --format='%s' "$local_path")"
+            local_digest="sha256:$(sha256sum "$local_path" | cut -d' ' -f1)"
+            matches="$(jq --arg name "$name" '[.[] | select(.name == $name)] | length' <<<"$asset_json")"
+            test "$matches" -eq 1
+            remote_size="$(jq -r --arg name "$name" '.[] | select(.name == $name) | .size' <<<"$asset_json")"
+            remote_digest="$(jq -r --arg name "$name" '.[] | select(.name == $name) | .digest' <<<"$asset_json")"
+            test "$remote_size" = "$local_size"
+            test "$remote_digest" = "$local_digest"
+          done
+
+          remote_dir="$RUNNER_TEMP/remote-release-assets"
+          mkdir -p "$remote_dir"
+          for name in "${assets[@]}"; do
+            gh release download "$RELEASE_TAG" --repo "$REPOSITORY" --dir "$remote_dir" --pattern "$name"
+            cmp --silent "release-assets/$name" "$remote_dir/$name"
+          done
+          (cd "$remote_dir" && sha256sum --check SHA256SUMS)
+
+          verify_remote_tag
+          published="$(gh api --method PATCH "repos/$REPOSITORY/releases/$release_id" \
+            -F draft=false \
+            -F prerelease=false \
+            -f make_latest=true)"
+          test "$(jq -er '.draft' <<<"$published")" = 'false'
+          test "$(jq -er '.prerelease' <<<"$published")" = 'false'

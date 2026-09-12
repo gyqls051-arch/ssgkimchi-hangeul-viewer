@@ -1,9 +1,9 @@
-import { app, BrowserWindow, ipcMain, screen } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, screen } from 'electron'
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { applySecurity } from './security'
 import { buildMenu } from './menu'
-import { openPath, registerIpc } from './ipc'
+import { cancelActiveOpen, openPath, registerIpc } from './ipc'
 import { ALLOWED_EXT } from './fileService'
 import { getWindowState, saveWindowStateSync, type WindowState } from './store'
 import {
@@ -11,73 +11,177 @@ import {
   registerAppProtocolHandler,
   registerAppProtocolScheme
 } from './appProtocol'
+import { isTrustedIpcEvent } from './rendererTrust'
+import { UpdateManager, registerUpdateIpc } from './updateManager'
 
 const isDev = !app.isPackaged
+const READY_TIMEOUT_MS = 10_000
+const RECOVERY_WINDOW_MS = 60_000
+const MAX_AUTOMATIC_RECOVERIES = 2
 
-// 종료 확인 팝업(배너): 설치본에서 기본 활성. 개발/E2E 에선 끔(닫기 테스트 방해 방지).
-//   - 개발 미리보기로 켜기:        SSGKIMCHI_EXIT_CONFIRM=1
-//   - 패키지 스모크 스크립트에서 끄기: SSGKIMCHI_SKIP_EXIT_CONFIRM=1
+// 종료 확인 팝업은 설치본에서만 기본 활성. 개발/E2E에서는 명시적으로 켤 수 있다.
 const exitConfirmEnabled =
   (app.isPackaged || !!process.env['SSGKIMCHI_EXIT_CONFIRM']) &&
   !process.env['SSGKIMCHI_SKIP_EXIT_CONFIRM']
 
-// app:// 스킴은 app 'ready' 이전에 등록해야 한다 (모듈 로드 시점)
+// app:// 스킴은 app ready 이전에 등록해야 한다.
 registerAppProtocolScheme()
 
-// 전역 예외/거부를 잡아 로그만 남기고 앱이 조용히 죽지 않게 한다 (디버깅 게이트)
-process.on('uncaughtException', (err) => {
-  console.error('[main] uncaughtException:', err)
+let mainWindow: BrowserWindow | null = null
+let updateManager: UpdateManager | null = null
+let rendererReady = false
+let exitConfirmed = false
+let exitPromptPending = false
+let shuttingDown = false
+let loadEpoch = 0
+let readyTimer: ReturnType<typeof setTimeout> | null = null
+let recoveryInProgress = false
+let rendererUnresponsive = false
+let unresponsiveTimer: ReturnType<typeof setTimeout> | null = null
+let recoveryAttempts: number[] = []
+const pendingFiles: string[] = []
+
+function clearReadyTimer(): void {
+  if (readyTimer) clearTimeout(readyTimer)
+  readyTimer = null
+}
+
+function clearUnresponsiveTimer(): void {
+  if (unresponsiveTimer) clearTimeout(unresponsiveTimer)
+  unresponsiveTimer = null
+}
+
+function reportAsyncFailure(scope: string, error: unknown): void {
+  console.error(`[main] ${scope}:`, error)
+}
+
+// 예상하지 못한 main 예외 뒤 손상된 상태로 계속 서비스하지 않는다.
+process.on('uncaughtException', (error) => {
+  console.error('[main] uncaughtException:', error)
+  cancelActiveOpen()
+  if (isDev) return
+  shuttingDown = true
+  app.exit(1)
 })
 process.on('unhandledRejection', (reason) => {
   console.error('[main] unhandledRejection:', reason)
 })
 
-let mainWindow: BrowserWindow | null = null
-let rendererReady = false
-let exitConfirmed = false
-const pendingFiles: string[] = []
-
-/** argv에서 문서 경로들을 추출 (지원 확장자 + 실제 존재하는 파일만, 다중 선택 지원) */
+/** argv에서 지원 확장자의 실제 경로만 추출한다. 최종 정규파일 검증은 readDoc이 수행한다. */
 function filesFromArgv(argv: string[]): string[] {
   const out: string[] = []
-  // [0]은 실행파일(dev에선 electron). 나머지에서 플래그/`.` 제외, 지원 확장자 + 실제 파일만.
-  for (const arg of argv.slice(1)) {
-    if (arg.startsWith('-') || arg === '.') continue
-    const lower = arg.toLowerCase()
-    let matched = false
-    for (const ext of ALLOWED_EXT) {
-      if (lower.endsWith(ext)) {
-        matched = true
-        break
-      }
+  for (const argument of argv.slice(1)) {
+    if (argument.startsWith('-') || argument === '.') continue
+    const lower = argument.toLowerCase()
+    if ([...ALLOWED_EXT].some((extension) => lower.endsWith(extension)) && existsSync(argument)) {
+      out.push(argument)
     }
-    if (matched && existsSync(arg)) out.push(arg)
   }
   return out
 }
 
-/** 렌더러 준비 전/창 없을 때 들어온 파일은 큐에 모았다가 준비되면 처리 */
-function queueOrOpen(path: string): void {
-  if (mainWindow && rendererReady) openPath(mainWindow, path)
-  else pendingFiles.push(path)
+function rememberLatestPending(path: string): void {
+  pendingFiles.length = 0
+  pendingFiles.push(path)
 }
 
-function flushPending(): void {
-  if (!mainWindow || !rendererReady) return
+/** 단일 문서 UI이므로 여러 요청이 겹치면 최신 요청만 남긴다. */
+function queueOrOpen(path: string): void {
   const win = mainWindow
-  while (pendingFiles.length > 0) {
-    const p = pendingFiles.shift()
-    if (p) openPath(win, p)
+  if (win && rendererReady && !win.isDestroyed()) {
+    void openPath(win, path).catch((error: unknown) => reportAsyncFailure('파일 열기 실패', error))
+  } else {
+    rememberLatestPending(path)
   }
 }
 
-/** 저장된 위치가 현재 디스플레이 작업영역과 충분히 겹치는지 (오프스크린 복원 방지) */
+function flushPending(): void {
+  const win = mainWindow
+  if (!win || !rendererReady || win.isDestroyed()) return
+  const path = pendingFiles.pop()
+  pendingFiles.length = 0
+  if (!path) return
+  void openPath(win, path).catch((error: unknown) => reportAsyncFailure('대기 파일 열기 실패', error))
+}
+
+function rendererEntryUrl(): string {
+  const devUrl = process.env['ELECTRON_RENDERER_URL']
+  return isDev && devUrl ? devUrl : APP_INDEX_URL
+}
+
 function isVisibleOnScreen(x: number, y: number, width: number, height: number): boolean {
-  return screen.getAllDisplays().some((d) => {
-    const wa = d.workArea
-    const overlapX = Math.min(x + width, wa.x + wa.width) - Math.max(x, wa.x)
-    const overlapY = Math.min(y + height, wa.y + wa.height) - Math.max(y, wa.y)
+  return screen.getAllDisplays().some((display) => {
+    const workArea = display.workArea
+    const overlapX = Math.min(x + width, workArea.x + workArea.width) - Math.max(x, workArea.x)
+    const overlapY = Math.min(y + height, workArea.y + workArea.height) - Math.max(y, workArea.y)
     return overlapX > 80 && overlapY > 40
+  })
+}
+
+async function recoverRenderer(win: BrowserWindow, reason: string): Promise<void> {
+  if (recoveryInProgress || shuttingDown || win.isDestroyed() || win !== mainWindow) return
+  recoveryInProgress = true
+  rendererReady = false
+  exitPromptPending = false
+  cancelActiveOpen()
+  clearReadyTimer()
+
+  const now = Date.now()
+  recoveryAttempts = recoveryAttempts.filter((time) => now - time < RECOVERY_WINDOW_MS)
+  try {
+    if (recoveryAttempts.length >= MAX_AUTOMATIC_RECOVERIES) {
+      const result = await dialog.showMessageBox(win, {
+        type: 'error',
+        title: '화면 복구 실패',
+        message: '문서 화면이 반복해서 중단되었습니다.',
+        detail: `${reason}\n같은 문제가 계속되면 앱을 종료하고 해당 문서를 다시 열지 마세요.`,
+        buttons: ['종료', '한 번 더 다시 로드'],
+        defaultId: 0,
+        cancelId: 0,
+        noLink: true
+      })
+      if (result.response === 0 || win.isDestroyed()) {
+        exitConfirmed = true
+        win.destroy()
+        return
+      }
+      recoveryAttempts = []
+    }
+
+    recoveryAttempts.push(Date.now())
+    await win.loadURL(rendererEntryUrl())
+  } catch (error: unknown) {
+    reportAsyncFailure('renderer 재로딩 실패', error)
+  } finally {
+    recoveryInProgress = false
+  }
+}
+
+function armReadyTimeout(win: BrowserWindow, epoch: number): void {
+  clearReadyTimer()
+  readyTimer = setTimeout(() => {
+    if (
+      !rendererReady &&
+      !shuttingDown &&
+      !win.isDestroyed() &&
+      win === mainWindow &&
+      epoch === loadEpoch
+    ) {
+      void recoverRenderer(win, 'renderer가 준비 신호를 보내지 않았습니다.')
+    }
+  }, READY_TIMEOUT_MS)
+}
+
+function saveBounds(win: BrowserWindow): void {
+  if (win.isMinimized()) return
+  const bounds = win.getNormalBounds()
+  if (bounds.width < 200 || bounds.height < 200) return
+  saveWindowStateSync({
+    width: bounds.width,
+    height: bounds.height,
+    x: bounds.x,
+    y: bounds.y,
+    maximized: win.isMaximized()
   })
 }
 
@@ -89,7 +193,7 @@ function createWindow(state: WindowState): void {
     state.y !== undefined &&
     isVisibleOnScreen(state.x, state.y, width, height)
 
-  mainWindow = new BrowserWindow({
+  const win = new BrowserWindow({
     width,
     height,
     ...(useXY ? { x: state.x, y: state.y } : {}),
@@ -109,124 +213,212 @@ function createWindow(state: WindowState): void {
       spellcheck: false
     }
   })
+  mainWindow = win
+  rendererReady = false
+  exitConfirmed = false
+  exitPromptPending = false
+  recoveryAttempts = []
 
-  if (state.maximized) mainWindow.maximize()
+  if (state.maximized) win.maximize()
+  win.once('ready-to-show', () => {
+    if (!win.isDestroyed()) win.show()
+  })
 
-  mainWindow.once('ready-to-show', () => mainWindow?.show())
-
-  // 창 크기/위치/최대화 상태를 닫기 직전에 동기 저장 (종료 레이스로 미저장 방지)
-  mainWindow.on('close', (e) => {
-    if (mainWindow && !mainWindow.isMinimized()) {
-      const bounds = mainWindow.getNormalBounds()
-      if (bounds.width >= 200 && bounds.height >= 200) {
-        saveWindowStateSync({
-          width: bounds.width,
-          height: bounds.height,
-          x: bounds.x,
-          y: bounds.y,
-          maximized: mainWindow.isMaximized()
-        })
+  win.on('close', (event) => {
+    saveBounds(win)
+    if (
+      exitConfirmEnabled &&
+      !shuttingDown &&
+      !exitConfirmed &&
+      rendererReady &&
+      !win.webContents.isDestroyed()
+    ) {
+      event.preventDefault()
+      if (!exitPromptPending) {
+        exitPromptPending = true
+        win.webContents.send('show-exit-dialog')
       }
-    }
-    // 종료 확인 팝업(배너) — 처음 닫기 시도를 가로채 렌더러 모달을 띄운다.
-    // "종료" 선택 시 exit:confirm → exitConfirmed=true → destroy 로 실제 종료.
-    if (exitConfirmEnabled && !exitConfirmed && mainWindow && !mainWindow.webContents.isDestroyed()) {
-      e.preventDefault()
-      mainWindow.webContents.send('show-exit-dialog')
     }
   })
 
-  // 모든 로드 시작 시 준비상태 리셋 — 렌더러가 리스너 부착 후 'renderer-ready'로 다시 알린다
-  mainWindow.webContents.on('did-start-loading', () => {
+  win.webContents.on('did-start-loading', () => {
+    loadEpoch += 1
     rendererReady = false
+    rendererUnresponsive = false
+    exitPromptPending = false
+    cancelActiveOpen()
+    clearReadyTimer()
+    clearUnresponsiveTimer()
   })
 
-  mainWindow.webContents.on('did-finish-load', () => {
+  win.webContents.on('did-finish-load', () => {
     if (isDev) console.log('[main] 렌더러 로드 완료')
-    // 폴백: 렌더러가 ready 신호를 못 보내도 일정 시간 후 강제 처리
-    setTimeout(() => {
-      if (mainWindow && !rendererReady) {
-        rendererReady = true
-        flushPending()
-      }
-    }, 2500)
+    armReadyTimeout(win, loadEpoch)
   })
 
-  // dev: 렌더러 콘솔을 터미널로 포워딩 (디버깅 + 스모크 테스트 신호)
+  win.webContents.on(
+    'did-fail-load',
+    (_event, errorCode, errorDescription, _validatedUrl, isMainFrame) => {
+      if (!isMainFrame || errorCode === -3 || shuttingDown) return
+      void recoverRenderer(win, `화면 로드 실패(${errorCode}): ${errorDescription}`)
+    }
+  )
+
+  win.webContents.on('render-process-gone', (_event, details) => {
+    if (shuttingDown) return
+    void recoverRenderer(win, `renderer 종료: ${details.reason} (exit ${details.exitCode})`)
+  })
+
+  win.on('unresponsive', () => {
+    rendererUnresponsive = true
+    clearUnresponsiveTimer()
+    unresponsiveTimer = setTimeout(() => {
+      if (!rendererUnresponsive || shuttingDown || win.isDestroyed()) return
+      void dialog
+        .showMessageBox(win, {
+          type: 'warning',
+          title: '응답 없음',
+          message: '문서 화면이 응답하지 않습니다.',
+          detail: '큰 문서를 처리 중일 수 있습니다. 계속 기다리거나 안전하게 화면을 다시 로드할 수 있습니다.',
+          buttons: ['계속 기다리기', '화면 다시 로드'],
+          defaultId: 0,
+          cancelId: 0,
+          noLink: true
+        })
+        .then((result) => {
+          if (result.response === 1) return recoverRenderer(win, 'renderer 무응답')
+          return undefined
+        })
+        .catch((error: unknown) => reportAsyncFailure('무응답 대화상자 실패', error))
+    }, 3_000)
+  })
+
+  win.on('responsive', () => {
+    rendererUnresponsive = false
+    clearUnresponsiveTimer()
+  })
+
   if (isDev) {
-    mainWindow.webContents.on('console-message', (e) => {
-      console.log('[renderer]', e.message)
+    win.webContents.on('console-message', (event) => {
+      console.log('[renderer]', event.message)
     })
   }
 
-  mainWindow.on('closed', () => {
-    mainWindow = null
+  win.on('closed', () => {
+    clearReadyTimer()
+    clearUnresponsiveTimer()
+    cancelActiveOpen()
+    if (mainWindow === win) mainWindow = null
     rendererReady = false
+    exitPromptPending = false
   })
 
-  // 외부 링크/새 창 차단은 security.ts 의 app-wide web-contents-created 핸들러가 담당한다.
-
-  const devUrl = process.env['ELECTRON_RENDERER_URL']
-  if (isDev && devUrl) {
-    void mainWindow.loadURL(devUrl)
-  } else {
-    // 프로덕션: file:// 대신 app:// 표준 보안 origin 으로 로드
-    void mainWindow.loadURL(APP_INDEX_URL)
-  }
+  void win.loadURL(rendererEntryUrl()).catch((error: unknown) =>
+    reportAsyncFailure('초기 renderer 로드 실패', error)
+  )
 }
 
-// 단일 인스턴스 — 파일 연결로 재실행 시 기존 창으로 전달
 const gotLock = app.requestSingleInstanceLock()
 if (!gotLock) {
   app.quit()
 } else {
   app.on('second-instance', (_event, argv) => {
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore()
-      mainWindow.focus()
+    const win = mainWindow
+    if (win) {
+      if (win.isMinimized()) win.restore()
+      win.focus()
     }
-    for (const f of filesFromArgv(argv)) queueOrOpen(f)
+    const files = filesFromArgv(argv)
+    if (files.length > 0) queueOrOpen(files[files.length - 1])
   })
 
-  // macOS: 파일 연결로 열기
   app.on('open-file', (event, path) => {
     event.preventDefault()
     queueOrOpen(path)
   })
 
-  // macOS dock 재활성화 — 동기 등록(async whenReady 안에 두면 초기 이벤트를 놓칠 수 있음)
   app.on('activate', async () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow(await getWindowState())
   })
 
-  // 렌더러가 open-file 리스너를 부착한 뒤 보내는 준비 신호 — 이때 큐를 비운다
   ipcMain.on('renderer-ready', (event) => {
-    if (mainWindow && event.sender === mainWindow.webContents) {
-      rendererReady = true
-      flushPending()
-    }
+    if (!isTrustedIpcEvent(event, () => mainWindow)) return
+    rendererReady = true
+    clearReadyTimer()
+    flushPending()
+    updateManager?.broadcastCurrent()
   })
 
-  // 종료 확인 모달에서 "종료" 선택 → 가로채기 해제하고 실제 종료
-  ipcMain.on('exit:confirm', () => {
+  ipcMain.on('exit:cancel', (event) => {
+    if (!exitPromptPending || !isTrustedIpcEvent(event, () => mainWindow)) return
+    exitPromptPending = false
+  })
+
+  ipcMain.on('exit:confirm', (event) => {
+    if (!exitPromptPending || !isTrustedIpcEvent(event, () => mainWindow)) return
+    exitPromptPending = false
     exitConfirmed = true
     mainWindow?.destroy()
   })
 
-  app.whenReady().then(async () => {
-    app.setName('싹싹김치 한글뷰어')
-    registerAppProtocolHandler()
-    applySecurity(isDev)
-    registerIpc()
-    createWindow(await getWindowState())
-    buildMenu(() => mainWindow)
-
-    for (const f of filesFromArgv(process.argv)) pendingFiles.push(f)
-
-    // 테스트/스모크 전용 자동 열기 (dev 에서 환경변수로만 활성화 — 프로덕션 비활성)
-    const autoOpen = isDev ? process.env['SSGKIMCHI_OPEN_ON_START'] : undefined
-    if (autoOpen) pendingFiles.push(autoOpen)
+  app.on('before-quit', () => {
+    shuttingDown = true
+    updateManager?.dispose()
+    cancelActiveOpen()
+    clearReadyTimer()
+    clearUnresponsiveTimer()
   })
+
+  void app
+    .whenReady()
+    .then(async () => {
+      app.setName('싹싹김치 한글뷰어')
+      registerAppProtocolHandler()
+      applySecurity(isDev)
+
+      const manager = new UpdateManager({
+        publish: (snapshot) => {
+          const win = mainWindow
+          if (
+            !rendererReady ||
+            !win ||
+            win.isDestroyed() ||
+            win.webContents.isDestroyed()
+          ) {
+            return
+          }
+          win.webContents.send('update:state', snapshot)
+        },
+        prepareInstall: () => {
+          shuttingDown = true
+          exitConfirmed = true
+          exitPromptPending = false
+          cancelActiveOpen()
+          clearReadyTimer()
+          clearUnresponsiveTimer()
+        },
+        cancelInstallPreparation: () => {
+          shuttingDown = false
+          exitConfirmed = false
+        }
+      })
+      updateManager = manager
+      await manager.initialize()
+      registerIpc(() => mainWindow)
+      registerUpdateIpc(manager, () => mainWindow)
+
+      const initialFiles = filesFromArgv(process.argv)
+      if (initialFiles.length > 0) rememberLatestPending(initialFiles[initialFiles.length - 1])
+      const autoOpen = isDev ? process.env['SSGKIMCHI_OPEN_ON_START'] : undefined
+      if (autoOpen) rememberLatestPending(autoOpen)
+
+      createWindow(await getWindowState())
+      buildMenu(() => mainWindow, manager)
+    })
+    .catch((error: unknown) => {
+      reportAsyncFailure('앱 초기화 실패', error)
+      app.exit(1)
+    })
 
   app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit()

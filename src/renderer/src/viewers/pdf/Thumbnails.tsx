@@ -33,14 +33,17 @@ function ThumbItem({ pdf, pageNumber, active, onSelect, registerActive }: ThumbP
   return (
     <button
       ref={refCb}
+      type="button"
       className={`pdf-thumb${active ? ' pdf-thumb--active' : ''}`}
+      aria-label={`${pageNumber}쪽으로 이동`}
+      aria-current={active ? 'page' : undefined}
       onClick={() => onSelect(pageNumber)}
       title={`${pageNumber}쪽`}
     >
       {visible ? (
-        <canvas ref={canvasRef} className="pdf-thumb__canvas" />
+        <canvas ref={canvasRef} className="pdf-thumb__canvas" aria-hidden="true" />
       ) : (
-        <div className="pdf-thumb__placeholder" />
+        <div className="pdf-thumb__placeholder" aria-hidden="true" />
       )}
       <span className="pdf-thumb__num">{pageNumber}</span>
     </button>
@@ -66,7 +69,7 @@ export default function Thumbnails({ pdf, numPages, currentPage, onSelect }: Pro
   }, [currentPage])
 
   return (
-    <div className="pdf-thumbs">
+    <div id="pdf-thumbnails" className="pdf-thumbs" role="region" aria-label="PDF 미리보기">
       {Array.from({ length: numPages }, (_, i) => i + 1).map((p) => (
         <ThumbItem
           key={p}

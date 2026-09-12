@@ -1,8 +1,12 @@
 import { app, Menu, type BrowserWindow, type MenuItemConstructorOptions } from 'electron'
 import { openViaDialog } from './ipc'
+import type { UpdateManager } from './updateManager'
 
 /** 네이티브 애플리케이션 메뉴 구성 */
-export function buildMenu(getWindow: () => BrowserWindow | null): void {
+export function buildMenu(
+  getWindow: () => BrowserWindow | null,
+  updateManager: UpdateManager
+): void {
   const isDev = !app.isPackaged
 
   const template: MenuItemConstructorOptions[] = [
@@ -14,7 +18,11 @@ export function buildMenu(getWindow: () => BrowserWindow | null): void {
           accelerator: 'CmdOrCtrl+O',
           click: () => {
             const win = getWindow()
-            if (win) void openViaDialog(win)
+            if (win) {
+              void openViaDialog(win).catch((error: unknown) => {
+                console.error('[menu] 열기 대화상자 실패:', error)
+              })
+            }
           }
         },
         {
@@ -34,6 +42,24 @@ export function buildMenu(getWindow: () => BrowserWindow | null): void {
         { role: 'zoomOut', label: '축소' },
         { type: 'separator' },
         { role: 'togglefullscreen', label: '전체 화면' }
+      ]
+    },
+    {
+      label: '도움말',
+      submenu: [
+        {
+          label: '업데이트 확인…',
+          enabled: updateManager.isSupported(),
+          click: () => {
+            const win = getWindow()
+            if (win && !win.isDestroyed() && !win.webContents.isDestroyed()) {
+              win.webContents.send('show-update-dialog')
+            }
+            void updateManager.checkForUpdates().catch((error: unknown) => {
+              console.error('[menu] 업데이트 확인 실패:', error)
+            })
+          }
+        }
       ]
     },
     ...(isDev

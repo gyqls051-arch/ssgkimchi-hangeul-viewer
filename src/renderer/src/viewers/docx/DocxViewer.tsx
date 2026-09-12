@@ -77,26 +77,65 @@ export default function DocxViewer({ doc }: ViewerProps) {
 
   return (
     <div className="docx">
-      <div className="docx-toolbar">
+      <div className="docx-toolbar" role="toolbar" aria-label="Word 문서 보기 도구">
         <span className="badge">WORD</span>
-        <div className="docx-toolbar__group">
-          <button className="iconbtn" title="축소" onClick={() => zoomBy(1 / 1.2)}>
+        <div className="docx-toolbar__group" role="group" aria-label="확대 및 실제 크기">
+          <button
+            type="button"
+            className="iconbtn"
+            title="축소"
+            aria-label="축소"
+            disabled={scale <= MIN_SCALE + 0.001}
+            onClick={() => zoomBy(1 / 1.2)}
+          >
             −
           </button>
-          <span className="docx-zoom">{Math.round(scale * 100)}%</span>
-          <button className="iconbtn" title="확대" onClick={() => zoomBy(1.2)}>
+          <span className="docx-zoom" aria-label={`확대 배율 ${Math.round(scale * 100)}%`}>
+            {Math.round(scale * 100)}%
+          </span>
+          <button
+            type="button"
+            className="iconbtn"
+            title="확대"
+            aria-label="확대"
+            disabled={scale >= MAX_SCALE - 0.001}
+            onClick={() => zoomBy(1.2)}
+          >
             ＋
           </button>
-          <button className="textbtn" title="실제 크기" onClick={() => setScale(1)}>
+          <button
+            type="button"
+            className="textbtn"
+            title="실제 크기"
+            aria-label="실제 크기 100%"
+            disabled={Math.abs(scale - 1) < 0.001}
+            onClick={() => setScale(1)}
+          >
             100%
           </button>
         </div>
       </div>
 
-      <div className="docx-scroll" ref={scrollRef}>
-        {status === 'loading' && <div className="docx-status">Word 문서 불러오는 중…</div>}
+      <div
+        className="docx-scroll"
+        ref={scrollRef}
+        role="region"
+        aria-label="Word 문서"
+        aria-busy={status === 'loading'}
+        tabIndex={0}
+      >
+        {status === 'loading' && (
+          <div className="docx-status" role="status" aria-live="polite" aria-atomic="true">
+            Word 문서 불러오는 중…
+          </div>
+        )}
         {status === 'error' && (
-          <div className="docx-status docx-status--error">
+          <div
+            className="docx-status docx-status--error"
+            role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
+          >
             <div className="docx-status__icon" aria-hidden>
               ⚠️
             </div>
@@ -107,6 +146,8 @@ export default function DocxViewer({ doc }: ViewerProps) {
         <div
           className="docx-host"
           ref={hostRef}
+          role="document"
+          aria-label="Word 문서 내용"
           style={{ zoom: scale, display: status === 'ready' ? 'block' : 'none' }}
         />
       </div>

@@ -1,14 +1,22 @@
 import { contextBridge, ipcRenderer, webUtils, type IpcRendererEvent } from 'electron'
-import type { ViewerApi, OpenedFile, RecentItem } from './api'
+import type { ViewerApi, OpenedFile, RecentItem, UpdateSnapshot } from './api'
 
 const api: ViewerApi = {
   openFileDialog: () => ipcRenderer.invoke('dialog:open'),
+
+  onOpenIntent: (cb: () => void): (() => void) => {
+    const listener = (): void => cb()
+    ipcRenderer.on('open-file-start', listener)
+    return () => ipcRenderer.removeListener('open-file-start', listener)
+  },
 
   onOpenFile: (cb: (file: OpenedFile) => void): (() => void) => {
     const listener = (_e: IpcRendererEvent, file: OpenedFile): void => cb(file)
     ipcRenderer.on('open-file', listener)
     return () => ipcRenderer.removeListener('open-file', listener)
   },
+
+  cancelPendingOpen: (): void => ipcRenderer.send('open:cancel'),
 
   onPrint: (cb: () => void): (() => void) => {
     const listener = (): void => cb()
@@ -20,22 +28,22 @@ const api: ViewerApi = {
 
   openDroppedFile: (file: File): boolean => {
     // webUtils 는 OS 가 실제로 드래그해 넣은 File 에만 경로를 준다.
-    // 렌더러가 new File() 로 합성한 객체는 '' → 임의 경로 읽기 통로가 되지 않는다.
+    // renderer가 합성한 File은 빈 경로이므로 임의 경로 입력 통로가 되지 않는다.
     let path = ''
     try {
       path = webUtils.getPathForFile(file)
     } catch {
-      /* 경로 없는 File — 폴백(렌더러 직접 읽기)으로 처리 */
+      /* 경로 없는 File — renderer 직접 읽기 fallback으로 처리 */
     }
     if (!path) return false
     ipcRenderer.send('drop:open', path)
     return true
   },
 
-  openExternal: (url: string): void => ipcRenderer.send('open-external', url),
+  openExternal: (url: string): Promise<boolean> => ipcRenderer.invoke('open-external', url),
 
   listRecent: (): Promise<RecentItem[]> => ipcRenderer.invoke('recent:list'),
-  openRecent: (path: string): Promise<boolean> => ipcRenderer.invoke('recent:open', path),
+  openRecent: (id: string): Promise<boolean> => ipcRenderer.invoke('recent:open', id),
   clearRecent: (): Promise<void> => ipcRenderer.invoke('recent:clear'),
 
   onShowExitDialog: (cb: () => void): (() => void) => {
@@ -43,19 +51,35 @@ const api: ViewerApi = {
     ipcRenderer.on('show-exit-dialog', listener)
     return () => ipcRenderer.removeListener('show-exit-dialog', listener)
   },
+  cancelExit: (): void => ipcRenderer.send('exit:cancel'),
   confirmExit: (): void => ipcRenderer.send('exit:confirm'),
+
+  getUpdateState: (): Promise<UpdateSnapshot | null> => ipcRenderer.invoke('update:get-state'),
+  checkForUpdates: (): Promise<UpdateSnapshot | null> => ipcRenderer.invoke('update:check'),
+  downloadUpdate: (): Promise<UpdateSnapshot | null> => ipcRenderer.invoke('update:download'),
+  cancelUpdateDownload: (): Promise<UpdateSnapshot | null> => ipcRenderer.invoke('update:cancel'),
+  installUpdate: (): Promise<UpdateSnapshot | null> => ipcRenderer.invoke('update:install'),
+  onUpdateState: (cb: (snapshot: UpdateSnapshot) => void): (() => void) => {
+    const listener = (_event: IpcRendererEvent, snapshot: UpdateSnapshot): void => cb(snapshot)
+    ipcRenderer.on('update:state', listener)
+    return () => ipcRenderer.removeListener('update:state', listener)
+  },
+  onShowUpdateDialog: (cb: () => void): (() => void) => {
+    const listener = (): void => cb()
+    ipcRenderer.on('show-update-dialog', listener)
+    return () => ipcRenderer.removeListener('show-update-dialog', listener)
+  },
 
   platform: process.platform
 }
 
-// contextIsolation:true 에서는 contextBridge로만 노출 (안전 경계 유지)
-if (process.contextIsolated) {
-  try {
-    contextBridge.exposeInMainWorld('api', api)
-  } catch (error) {
-    console.error('[preload] exposeInMainWorld 실패:', error)
-  }
-} else {
-  // 비정상(격리 꺼짐) 환경 폴백 — 정상 빌드에선 도달하지 않음
-  ;(globalThis as unknown as { api: ViewerApi }).api = api
+// 비격리 renderer에는 어떠한 privileged API도 노출하지 않는다.
+if (!process.contextIsolated) {
+  throw new Error('contextIsolation이 비활성화되어 preload API 노출을 거부합니다.')
+}
+
+try {
+  contextBridge.exposeInMainWorld('api', api)
+} catch (error) {
+  console.error('[preload] exposeInMainWorld 실패:', error)
 }

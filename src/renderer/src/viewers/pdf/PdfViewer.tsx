@@ -12,6 +12,10 @@ const MIN_SCALE = 0.25
 const MAX_SCALE = 5
 const clamp = (v: number, lo: number, hi: number): number => Math.min(hi, Math.max(lo, v))
 
+function preferredScrollBehavior(): ScrollBehavior {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+}
+
 export default function PdfViewer({ doc }: ViewerProps) {
   const { pdf, numPages, loading, error } = usePdfDocument(doc.bytes)
 
@@ -40,7 +44,9 @@ export default function PdfViewer({ doc }: ViewerProps) {
   }, [])
 
   const jumpToPage = useCallback((p: number) => {
-    pageEls.current.get(p)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    pageEls.current
+      .get(p)
+      ?.scrollIntoView({ behavior: preferredScrollBehavior(), block: 'start' })
   }, [])
 
   // 1페이지 기준 크기 (fit-width 계산 + 자리표시자 높이)
@@ -77,10 +83,11 @@ export default function PdfViewer({ doc }: ViewerProps) {
     const el = scrollRef.current
     if (!el) return
     // 의미 있는 변화일 때만 setScale → 텍스트레이어 불필요한 재렌더(선택 깜빡임) 방지
-    const apply = (): void => setScale((prev) => {
-      const next = computeFitScale()
-      return Math.abs(next - prev) < 0.002 ? prev : next
-    })
+    const apply = (): void =>
+      setScale((prev) => {
+        const next = computeFitScale()
+        return Math.abs(next - prev) < 0.002 ? prev : next
+      })
     apply()
     const ro = new ResizeObserver(apply)
     ro.observe(el)
@@ -103,9 +110,16 @@ export default function PdfViewer({ doc }: ViewerProps) {
           best = p
         }
       }
-      setCurrentPage((prev) => (prev === best ? prev : best))
+      if (bestRatio > 0) setCurrentPage((prev) => (prev === best ? prev : best))
     })
   }, [])
+
+  useEffect(
+    () => () => {
+      if (rafRef.current !== undefined) cancelAnimationFrame(rafRef.current)
+    },
+    []
+  )
 
   // Ctrl+휠 줌
   useEffect(() => {
@@ -134,6 +148,7 @@ export default function PdfViewer({ doc }: ViewerProps) {
       if (!pdf || !trimmed) {
         setMatches([])
         setMatchIdx(0)
+        setSearching(false)
         return
       }
       setSearching(true)
@@ -165,18 +180,31 @@ export default function PdfViewer({ doc }: ViewerProps) {
     [matches, matchIdx, jumpToPage]
   )
 
-  const pages = useMemo(
-    () => Array.from({ length: numPages }, (_, i) => i + 1),
-    [numPages]
-  )
+  const pages = useMemo(() => Array.from({ length: numPages }, (_, i) => i + 1), [numPages])
   const estHeight = baseViewport ? baseViewport.h * scale : 800
+  const searchStatus = searching
+    ? '검색 중…'
+    : matches.length > 0
+      ? `${matchIdx + 1}/${matches.length}쪽`
+      : query.trim()
+        ? '검색 결과 없음'
+        : ''
 
   if (loading) {
-    return <div className="pdf-status">PDF 불러오는 중…</div>
+    return (
+      <div className="pdf-status" role="status" aria-live="polite" aria-atomic="true">
+        PDF 불러오는 중…
+      </div>
+    )
   }
   if (error || !pdf) {
     return (
-      <div className="pdf-status pdf-status--error">
+      <div
+        className="pdf-status pdf-status--error"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+      >
         <div className="pdf-status__icon" aria-hidden>
           ⚠️
         </div>
@@ -187,17 +215,28 @@ export default function PdfViewer({ doc }: ViewerProps) {
 
   return (
     <div className="pdf">
-      <div className="pdf-toolbar">
+      <div className="pdf-toolbar" role="toolbar" aria-label="PDF 보기 도구">
         <button
+          type="button"
           className={`iconbtn${showThumbs ? ' iconbtn--active' : ''}`}
           title="썸네일"
-          onClick={() => setShowThumbs((v) => !v)}
+          aria-label="페이지 썸네일"
+          aria-controls="pdf-thumbnails"
+          aria-pressed={showThumbs}
+          onClick={() => setShowThumbs((value) => !value)}
         >
           ▦
         </button>
 
-        <div className="pdf-toolbar__group">
-          <button className="iconbtn" title="이전 페이지" onClick={() => jumpToPage(Math.max(1, currentPage - 1))}>
+        <div className="pdf-toolbar__group" role="group" aria-label="페이지 이동">
+          <button
+            type="button"
+            className="iconbtn"
+            title="이전 페이지"
+            aria-label="이전 페이지"
+            disabled={currentPage <= 1}
+            onClick={() => jumpToPage(Math.max(1, currentPage - 1))}
+          >
             ‹
           </button>
           <input
@@ -205,6 +244,7 @@ export default function PdfViewer({ doc }: ViewerProps) {
             type="number"
             min={1}
             max={numPages}
+            aria-label="이동할 페이지 번호"
             // 편집 중엔 입력값을 그대로 두고(스크롤 추적이 덮어쓰지 않게),
             // 비편집 시엔 현재 페이지를 표시한다.
             value={pageInput ?? String(currentPage)}
@@ -222,28 +262,51 @@ export default function PdfViewer({ doc }: ViewerProps) {
               }
             }}
           />
-          <span className="pdf-toolbar__total">/ {numPages}</span>
+          <span className="pdf-toolbar__total" aria-hidden="true">
+            / {numPages}
+          </span>
           <button
+            type="button"
             className="iconbtn"
             title="다음 페이지"
+            aria-label="다음 페이지"
+            disabled={currentPage >= numPages}
             onClick={() => jumpToPage(Math.min(numPages, currentPage + 1))}
           >
             ›
           </button>
         </div>
 
-        <div className="pdf-toolbar__group">
-          <button className="iconbtn" title="축소" onClick={() => zoomBy(1 / 1.2)}>
+        <div className="pdf-toolbar__group" role="group" aria-label="확대 및 맞춤">
+          <button
+            type="button"
+            className="iconbtn"
+            title="축소"
+            aria-label="축소"
+            disabled={scale <= MIN_SCALE + 0.001}
+            onClick={() => zoomBy(1 / 1.2)}
+          >
             −
           </button>
-          <span className="pdf-zoom">{Math.round(scale * 100)}%</span>
-          <button className="iconbtn" title="확대" onClick={() => zoomBy(1.2)}>
+          <span className="pdf-zoom" aria-label={`확대 배율 ${Math.round(scale * 100)}%`}>
+            {Math.round(scale * 100)}%
+          </span>
+          <button
+            type="button"
+            className="iconbtn"
+            title="확대"
+            aria-label="확대"
+            disabled={scale >= MAX_SCALE - 0.001}
+            onClick={() => zoomBy(1.2)}
+          >
             ＋
           </button>
           <button
+            type="button"
             className={`textbtn${fitWidth ? ' textbtn--active' : ''}`}
             title="너비 맞춤"
-            onClick={() => setFitWidth(true)}
+            aria-pressed={fitWidth}
+            onClick={() => setFitWidth((value) => !value)}
           >
             너비맞춤
           </button>
@@ -251,6 +314,9 @@ export default function PdfViewer({ doc }: ViewerProps) {
 
         <form
           className="pdf-search"
+          role="search"
+          aria-label="PDF 문서 검색"
+          aria-busy={searching}
           onSubmit={(e) => {
             e.preventDefault()
             void runSearch(query)
@@ -259,22 +325,43 @@ export default function PdfViewer({ doc }: ViewerProps) {
           <input
             className="pdf-search__input"
             type="search"
+            aria-label="검색어"
             placeholder="문서 내 검색"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              searchSeq.current += 1
+              setQuery(e.target.value)
+              setMatches([])
+              setMatchIdx(0)
+              setSearching(false)
+            }}
           />
-          {matches.length > 0 && (
-            <span className="pdf-search__count">
-              {matchIdx + 1}/{matches.length}쪽
-            </span>
-          )}
-          {query.trim() && matches.length === 0 && !searching && (
-            <span className="pdf-search__count">없음</span>
-          )}
-          <button type="button" className="iconbtn" title="이전 결과" onClick={() => gotoMatch(-1)}>
+          <span
+            className="pdf-search__count"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            {searchStatus}
+          </span>
+          <button
+            type="button"
+            className="iconbtn"
+            title="이전 결과"
+            aria-label="이전 검색 결과"
+            disabled={searching || matches.length === 0}
+            onClick={() => gotoMatch(-1)}
+          >
             ↑
           </button>
-          <button type="button" className="iconbtn" title="다음 결과" onClick={() => gotoMatch(1)}>
+          <button
+            type="button"
+            className="iconbtn"
+            title="다음 결과"
+            aria-label="다음 검색 결과"
+            disabled={searching || matches.length === 0}
+            onClick={() => gotoMatch(1)}
+          >
             ↓
           </button>
         </form>
@@ -289,7 +376,13 @@ export default function PdfViewer({ doc }: ViewerProps) {
             onSelect={jumpToPage}
           />
         )}
-        <div className="pdf-scroll" ref={scrollRef}>
+        <div
+          className="pdf-scroll"
+          ref={scrollRef}
+          role="region"
+          aria-label="PDF 문서 페이지"
+          tabIndex={0}
+        >
           <div className="pdf-pages">
             {pages.map((p) => (
               <PdfPage

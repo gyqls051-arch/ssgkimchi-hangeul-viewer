@@ -13,6 +13,10 @@ interface Size {
   h: number
 }
 
+function preferredScrollBehavior(): ScrollBehavior {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+}
+
 export default function HwpViewer({ doc: input }: ViewerProps) {
   const { doc, pageCount, sourceFormat, loading, error } = useHwpDocument(input.bytes)
 
@@ -31,7 +35,9 @@ export default function HwpViewer({ doc: input }: ViewerProps) {
   }, [])
 
   const jumpToPage = useCallback((i: number) => {
-    pageEls.current.get(i)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    pageEls.current
+      .get(i)
+      ?.scrollIntoView({ behavior: preferredScrollBehavior(), block: 'start' })
   }, [])
 
   const onMeasured = useCallback((size: Size) => {
@@ -72,9 +78,16 @@ export default function HwpViewer({ doc: input }: ViewerProps) {
           best = p
         }
       }
-      setCurrentPage((prev) => (prev === best ? prev : best))
+      if (bestRatio > 0) setCurrentPage((prev) => (prev === best ? prev : best))
     })
   }, [])
+
+  useEffect(
+    () => () => {
+      if (rafRef.current !== undefined) cancelAnimationFrame(rafRef.current)
+    },
+    []
+  )
 
   // Ctrl+휠 줌
   useEffect(() => {
@@ -98,11 +111,20 @@ export default function HwpViewer({ doc: input }: ViewerProps) {
   const pages = useMemo(() => Array.from({ length: pageCount }, (_, i) => i), [pageCount])
 
   if (loading) {
-    return <div className="hwp-status">한글 문서 불러오는 중…</div>
+    return (
+      <div className="hwp-status" role="status" aria-live="polite" aria-atomic="true">
+        한글 문서 불러오는 중…
+      </div>
+    )
   }
   if (error || !doc) {
     return (
-      <div className="hwp-status hwp-status--error">
+      <div
+        className="hwp-status hwp-status--error"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+      >
         <div className="hwp-status__icon" aria-hidden>
           ⚠️
         </div>
@@ -113,13 +135,16 @@ export default function HwpViewer({ doc: input }: ViewerProps) {
 
   return (
     <div className="hwp">
-      <div className="hwp-toolbar">
+      <div className="hwp-toolbar" role="toolbar" aria-label="한글 문서 보기 도구">
         <span className="badge">{(sourceFormat || 'hwp').toUpperCase()}</span>
 
-        <div className="hwp-toolbar__group">
+        <div className="hwp-toolbar__group" role="group" aria-label="페이지 이동">
           <button
+            type="button"
             className="iconbtn"
             title="이전 페이지"
+            aria-label="이전 페이지"
+            disabled={currentPage <= 0}
             onClick={() => jumpToPage(Math.max(0, currentPage - 1))}
           >
             ‹
@@ -129,6 +154,7 @@ export default function HwpViewer({ doc: input }: ViewerProps) {
             type="number"
             min={1}
             max={pageCount}
+            aria-label="이동할 페이지 번호"
             value={pageInput ?? String(currentPage + 1)}
             onFocus={() => setPageInput(String(currentPage + 1))}
             onChange={(e) => setPageInput(e.target.value)}
@@ -144,35 +170,64 @@ export default function HwpViewer({ doc: input }: ViewerProps) {
               }
             }}
           />
-          <span className="hwp-toolbar__total">/ {pageCount}</span>
+          <span className="hwp-toolbar__total" aria-hidden="true">
+            / {pageCount}
+          </span>
           <button
+            type="button"
             className="iconbtn"
             title="다음 페이지"
+            aria-label="다음 페이지"
+            disabled={currentPage >= pageCount - 1}
             onClick={() => jumpToPage(Math.min(pageCount - 1, currentPage + 1))}
           >
             ›
           </button>
         </div>
 
-        <div className="hwp-toolbar__group">
-          <button className="iconbtn" title="축소" onClick={() => zoomBy(1 / 1.2)}>
+        <div className="hwp-toolbar__group" role="group" aria-label="확대 및 맞춤">
+          <button
+            type="button"
+            className="iconbtn"
+            title="축소"
+            aria-label="축소"
+            disabled={scale <= MIN_SCALE + 0.001}
+            onClick={() => zoomBy(1 / 1.2)}
+          >
             −
           </button>
-          <span className="hwp-zoom">{Math.round(scale * 100)}%</span>
-          <button className="iconbtn" title="확대" onClick={() => zoomBy(1.2)}>
+          <span className="hwp-zoom" aria-label={`확대 배율 ${Math.round(scale * 100)}%`}>
+            {Math.round(scale * 100)}%
+          </span>
+          <button
+            type="button"
+            className="iconbtn"
+            title="확대"
+            aria-label="확대"
+            disabled={scale >= MAX_SCALE - 0.001}
+            onClick={() => zoomBy(1.2)}
+          >
             ＋
           </button>
           <button
+            type="button"
             className={`textbtn${fitWidth ? ' textbtn--active' : ''}`}
             title="너비 맞춤"
-            onClick={() => setFitWidth(true)}
+            aria-pressed={fitWidth}
+            onClick={() => setFitWidth((value) => !value)}
           >
             너비맞춤
           </button>
         </div>
       </div>
 
-      <div className="hwp-scroll" ref={scrollRef}>
+      <div
+        className="hwp-scroll"
+        ref={scrollRef}
+        role="region"
+        aria-label="한글 문서 페이지"
+        tabIndex={0}
+      >
         <div className="hwp-pages">
           {pages.map((i) => (
             <HwpPage

@@ -2,7 +2,7 @@ appId: com.ssgkimchi.hangeulviewer
 productName: 싹싹김치 한글뷰어
 copyright: Copyright © 2026 싹싹김치
 
-# GitHub Releases 자동 게시 (CI에서 electron-builder --publish always)
+# build/sign과 publish를 분리한다. release workflow가 검증된 자산만 draft→publish한다.
 publish:
   provider: github
   owner: gyqls051-arch
@@ -13,6 +13,9 @@ directories:
   output: release
   buildResources: resources
 
+# 서명 입력이 없거나 잘못되면 unsigned fallback 대신 패키징을 실패시킨다.
+forceCodeSigning: true
+
 # 설치파일 최대 압축
 compression: maximum
 
@@ -21,14 +24,27 @@ electronLanguages:
   - ko
   - en-US
 
-# asar 패킹. out/renderer 자산(wasm/worker/cmaps)은 app:// 핸들러가 asar 내부에서 읽는다.
-# node_modules 제외: 렌더러 의존성은 out/renderer 로 번들됐고, main/preload 는
-# electron+node 내장만 require 하므로 런타임에 node_modules 가 전혀 필요 없다 (~115MB 절감).
+# asar 패킹. renderer 의존성과 electron-updater는 out/에 번들되어 런타임 node_modules가 없다.
 files:
   - out/**/*
   - package.json
   - '!node_modules/**/*'
 asarUnpack: []
+
+# 이용자가 설치 디렉터리의 resources에서 확인할 수 있는 배포 고지·정책 산출물.
+extraResources:
+  - from: LICENSE
+    to: LICENSE
+  - from: THIRD_PARTY_NOTICES.txt
+    to: THIRD_PARTY_NOTICES.txt
+  - from: PRIVACY.md
+    to: PRIVACY.md
+  - from: SUPPORT.md
+    to: SUPPORT.md
+  - from: sbom.cdx.json
+    to: sbom.cdx.json
+  - from: release-policy.json
+    to: release-policy.json
 
 # Windows 대상
 win:
@@ -37,6 +53,13 @@ win:
       arch:
         - x64
   icon: resources/icon.ico
+  signExecutable: true
+  verifyUpdateCodeSignature: true
+  signtoolOptions:
+    # release-policy.json과 실제 인증서의 simple subject name으로 함께 교체해야 한다.
+    publisherName: REPLACE_WITH_CERTIFICATE_SIMPLE_NAME
+    signingHashAlgorithms:
+      - sha256
   # 더블클릭 파일 연결
   fileAssociations:
     - ext: hwp
@@ -73,5 +96,5 @@ nsis:
   createStartMenuShortcut: true
   shortcutName: 싹싹김치 한글뷰어
   # 파일 연결은 사용자가 직접 선택할 수 있게(기본 강제 연결 안 함)
-  # GitHub Releases 가 비ASCII 자산명을 '.' 로 치환하므로 파일명만 ASCII (표시명은 한글 유지)
-  artifactName: ssgkimchi-hangeul-viewer-${version}-setup.${ext}
+  # GitHub Releases가 비ASCII 자산명을 치환할 수 있으므로 파일명만 ASCII (표시명은 한글 유지)
+  artifactName: ssgkimchi-hangeul-viewer-${version}-setup.exe

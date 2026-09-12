@@ -34,9 +34,9 @@ export default function EmptyState({ onOpen }: Props) {
   useEffect(() => refresh(), [refresh])
 
   const openRecent = useCallback(
-    async (path: string) => {
-      const ok = await window.api.openRecent(path)
-      // 죽은 경로(이동/삭제)면 메인이 목록에서 제거한 뒤 false 를 준다 → 즉시 갱신
+    async (id: string) => {
+      const ok = await window.api.openRecent(id)
+      // 이동·삭제되었거나 stale id면 메인이 목록에서 제거한 뒤 false를 반환한다.
       if (!ok) refresh()
     },
     [refresh]
@@ -77,11 +77,11 @@ export default function EmptyState({ onOpen }: Props) {
           </div>
           <ul className="recent__list">
             {recent.map((r) => (
-              <li key={r.path}>
+              <li key={r.id}>
                 <button
                   className="recent__item"
-                  onClick={() => void openRecent(r.path)}
-                  title={r.path}
+                  onClick={() => void openRecent(r.id)}
+                  title={r.name}
                 >
                   <span className="badge">{EXT_LABEL[r.ext] ?? r.ext.replace('.', '').toUpperCase()}</span>
                   <span className="recent__name">{r.name}</span>

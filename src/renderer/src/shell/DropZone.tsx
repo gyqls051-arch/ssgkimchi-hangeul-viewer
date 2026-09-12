@@ -9,6 +9,7 @@ const log = createLogger('dropzone')
 
 interface Props {
   onFile: (doc: DocInput) => void
+  onLocalOpenIntent: () => void
   children: ReactNode
 }
 
@@ -41,12 +42,13 @@ function hasFiles(e: DragEvent): boolean {
  *   렌더러에서 직접 읽되 크기 상한을 동일하게 적용한다.
  * - 관리자 권한 실행 시 Windows(UIPI)가 일반 탐색기→앱 드래그를 차단(앱 외적 제약).
  */
-export default function DropZone({ onFile, children }: Props) {
+export default function DropZone({ onFile, onLocalOpenIntent, children }: Props) {
   // 0 = 드래그 없음, n = 드래그 중인 파일 개수 (오버레이 힌트에 사용)
   const [dragCount, setDragCount] = useState(0)
   const [notice, setNotice] = useState<Notice | null>(null)
   const idleTimer = useRef<number | undefined>(undefined)
   const noticeTimer = useRef<number | undefined>(undefined)
+  const localReadGeneration = useRef(0)
 
   const showNotice = useCallback((kind: Notice['kind'], text: string) => {
     setNotice({ kind, text })
@@ -81,6 +83,7 @@ export default function DropZone({ onFile, children }: Props) {
       if (!hasFiles(e)) return
       e.preventDefault()
       hide()
+      const generation = ++localReadGeneration.current
 
       const files = e.dataTransfer?.files
       if (!files || files.length === 0) return
@@ -92,15 +95,21 @@ export default function DropZone({ onFile, children }: Props) {
       // 1) 지원 포맷 + 실경로 → 메인 프로세스 단일 열기 경로 (검증 + 최근 목록)
       if (SUPPORTED_EXTS.has(extOf(file.name)) && window.api.openDroppedFile(file)) return
 
-      // 2) 폴백: 경로 없는 File 또는 미지원 확장자(→ 안내 카드) — 크기 상한은 동일 적용
+      // 2) 경로 없는 File 또는 미지원 확장자는 renderer bounded fallback이 최신 열기 의도다.
+      // App gate를 먼저 전환하고 이전 main read를 취소해 두 비동기 도메인 간에도 latest-wins를 지킨다.
+      onLocalOpenIntent()
       if (file.size > MAX_DOC_BYTES) {
         showNotice('error', `파일이 너무 큽니다 (최대 ${MAX_MB}MB).`)
         return
       }
       file
         .arrayBuffer()
-        .then((bytes) => onFile({ name: file.name, ext: extOf(file.name), bytes }))
-        .catch((err) => {
+        .then((bytes) => {
+          if (generation !== localReadGeneration.current) return
+          onFile({ name: file.name, ext: extOf(file.name), bytes })
+        })
+        .catch((err: unknown) => {
+          if (generation !== localReadGeneration.current) return
           log.error('드롭 파일 읽기 실패:', err)
           showNotice('error', '파일을 읽지 못했습니다. 다시 시도해 주세요.')
         })
@@ -112,6 +121,8 @@ export default function DropZone({ onFile, children }: Props) {
     window.addEventListener('dragleave', onDragLeave, opts)
     window.addEventListener('drop', onDrop, opts)
     return () => {
+      // StrictMode replay/HMR/unmount 뒤에는 진행 중인 File promise도 결과를 전달하지 못한다.
+      localReadGeneration.current += 1
       window.removeEventListener('dragstart', onDragStart, opts)
       window.removeEventListener('dragover', onDragOver, opts)
       window.removeEventListener('dragleave', onDragLeave, opts)
@@ -119,13 +130,13 @@ export default function DropZone({ onFile, children }: Props) {
       if (idleTimer.current) clearTimeout(idleTimer.current)
       if (noticeTimer.current) clearTimeout(noticeTimer.current)
     }
-  }, [onFile, showNotice])
+  }, [onFile, onLocalOpenIntent, showNotice])
 
   return (
     <div className="dropzone">
       {children}
       {dragCount > 0 && (
-        <div className="dropzone__overlay">
+        <div className="dropzone__overlay" role="status" aria-live="polite">
           <div className="dropzone__card">
             <div className="dropzone__card-icon" aria-hidden>
               📥
@@ -134,7 +145,7 @@ export default function DropZone({ onFile, children }: Props) {
             {dragCount > 1 && (
               <div className="dropzone__sub">파일 {dragCount}개 중 첫 번째만 열립니다</div>
             )}
-            <div className="dropzone__formats">
+            <div className="dropzone__formats" aria-hidden="true">
               {FORMAT_BADGES.map((f) => (
                 <span key={f} className="badge">
                   {f}
@@ -145,7 +156,14 @@ export default function DropZone({ onFile, children }: Props) {
         </div>
       )}
       {notice && (
-        <div className={`dropzone__diag dropzone__diag--${notice.kind}`}>{notice.text}</div>
+        <div
+          className={`dropzone__diag dropzone__diag--${notice.kind}`}
+          role={notice.kind === 'error' ? 'alert' : 'status'}
+          aria-live={notice.kind === 'error' ? 'assertive' : 'polite'}
+          aria-atomic="true"
+        >
+          {notice.text}
+        </div>
       )}
     </div>
   )

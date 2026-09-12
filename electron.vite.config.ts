@@ -4,7 +4,8 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()],
+    // updater와 그 전이 의존성은 app.asar에 번들해 node_modules 없는 설치본에서도 동작시킨다.
+    plugins: [externalizeDepsPlugin({ exclude: ['electron-updater'] })],
     build: { outDir: 'out/main' }
   },
   preload: {

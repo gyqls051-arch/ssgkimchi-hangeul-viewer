@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_call:
+
+permissions: {}
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_call' }}
+
+jobs:
+  quality:
+    name: Quality and compliance
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    env:
+      npm_config_audit: 'false'
+      npm_config_fund: 'false'
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Set up exact Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22.13.0
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Set up exact npm
+        run: npm install --global npm@11.17.0
+
+      - name: Verify toolchain
+        shell: bash
+        run: |
+          test "$(node --version)" = "v22.13.0"
+          test "$(npm --version)" = "11.17.0"
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Run quality gate
+        run: npm run ci
+
+      - name: Run compliance gate
+        run: npm run compliance:check

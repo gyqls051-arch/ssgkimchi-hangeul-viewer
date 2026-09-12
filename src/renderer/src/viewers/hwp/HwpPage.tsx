@@ -22,7 +22,14 @@ interface Size {
  */
 const PURIFY_CONFIG = {
   USE_PROFILES: { svg: true, svgFilters: true },
-  FORBID_TAGS: ['foreignObject']
+  FORBID_TAGS: [
+    'foreignObject',
+    'script',
+    'animate',
+    'animateMotion',
+    'animateTransform',
+    'set'
+  ]
 }
 
 function sanitizeSvgString(svg: string): string {
@@ -80,6 +87,7 @@ export default function HwpPage({
   const scaleRef = useRef(scale)
   const onMeasuredRef = useRef(onMeasured)
   const [rendered, setRendered] = useState(false)
+  const [pageError, setPageError] = useState<string | null>(null)
 
   const { inView, setRef } = useInView((ratio) => onVisible?.(pageIndex, ratio))
 
@@ -134,6 +142,7 @@ export default function HwpPage({
     // 3) 각 줄을 큰 x-간격(표 칸 경계)으로 세그먼트 분리 (높이는 뒤에서 열별로 채움).
     //    글자높이는 줄별 median → 괄호 등 이상치 무시, 하이라이트 균일.
     type SegData = {
+      line: number
       left: number
       top: number
       right: number
@@ -143,7 +152,8 @@ export default function HwpPage({
       lineH: number
     }
     const segData: SegData[] = []
-    for (const ln of lines) {
+    for (let line = 0; line < lines.length; line += 1) {
+      const ln = lines[line]
       ln.chars.sort((a, b) => a.left - b.left)
       const fontH = median(ln.chars.map((c) => c.h).sort((a, b) => a - b))
       let cur: SegData | null = null
@@ -155,7 +165,16 @@ export default function HwpPage({
       for (const c of ln.chars) {
         if (cur && c.left - prev > fontH * 1.5) flush() // 표 칸 경계
         if (!cur) {
-          cur = { left: c.left, top: ln.top, right: c.right, fontH, text: c.txt, height: fontH, lineH: fontH }
+          cur = {
+            line,
+            left: c.left,
+            top: ln.top,
+            right: c.right,
+            fontH,
+            text: c.txt,
+            height: fontH,
+            lineH: fontH
+          }
         } else {
           if (c.left - prev > fontH * 0.25) cur.text += ' ' // 단어 간격
           cur.text += c.txt
@@ -166,47 +185,30 @@ export default function HwpPage({
       flush()
     }
 
-    // 3.5) 표 감지 → 열 키 함수. left 분포에 큰 x-간격(폭의 12%↑)이 있으면 2열+ 표로 봄.
-    //      일반 문서는 들여쓰기 간격<12%라 1열(colOf=0)로 묶여 읽는 순서 유지.
-    let colOf: (x: number) => number = () => 0
-    if (segData.length > 4) {
-      const sortedLefts = segData.map((s) => s.left).sort((a, b) => a - b)
-      const colGap = base.width * 0.12
-      const bounds: number[] = []
-      for (let k = 1; k < sortedLefts.length; k++) {
-        if (sortedLefts[k] - sortedLefts[k - 1] > colGap) {
-          bounds.push((sortedLefts[k] + sortedLefts[k - 1]) / 2)
-        }
-      }
-      if (bounds.length >= 1) colOf = (x) => bounds.reduce((n, b) => (x >= b ? n + 1 : n), 0)
-    }
-
-    // 3.6) 열 우선 정렬(한 열 세로선택 격리) + 같은 열의 "다음 세그먼트까지" 높이 채움
-    //      → 열마다 독립적으로 빈틈 없이 타일링되어 세로 드래그가 매끄럽다.
-    segData.sort((a, b) => colOf(a.left) - colOf(b.left) || a.top - b.top || a.left - b.left)
-    // 같은 열 다음 세그먼트까지 높이를 채운다(히트영역=부드러운 드래그). 하이라이트도 높이
-    // 전체(=일반 텍스트처럼 빈 줄도 연속으로 칠해 틈/줄무늬 없이 매끄럽게).
-    // 단, 매우 큰 빈틈(장면 전환 등 글자높이 8배↑)만 캡해 거대 빈 블록을 막는다.
-    const hugeGap = globalH * 8
-    for (let i = 0; i < segData.length; i++) {
-      const s = segData[i]
-      const nx = segData[i + 1]
-      const sameCol = nx && colOf(nx.left) === colOf(s.left) && nx.top > s.top + 1
-      s.height = sameCol ? Math.max(nx.top - s.top, s.fontH) : s.fontH
-      s.lineH = Math.min(s.height, hugeGap)
+    // 3.5) DOM/clipboard 순서는 열 우선이 아니라 줄(top) → 칸(left)의 row-major로 고정한다.
+    // 표 셀 사이의 큰 공백은 tab, 줄 사이는 newline 텍스트 노드로 보존한다.
+    segData.sort((a, b) => a.line - b.line || a.left - b.left)
+    for (const segment of segData) {
+      segment.height = segment.fontH
+      segment.lineH = segment.fontH
     }
 
     // 4) 스팬 생성(쓰기) → 너비 측정(읽기 일괄) → scaleX 정렬(쓰기 일괄)
     // 높이=틈채운 값(히트영역), 폰트/line-height=글자높이(하이라이트는 글자줄만)
-    const made = segData.map((s) => {
+    overlay.style.fontSize = '0'
+    overlay.style.color = 'transparent'
+    const made = segData.map((s, index) => {
       const span = document.createElement('span')
       span.textContent = s.text
+      span.dataset.line = String(s.line)
       span.style.left = `${s.left}px`
       span.style.top = `${s.top}px`
       span.style.height = `${s.height}px`
       span.style.fontSize = `${s.fontH * 0.82}px`
       span.style.lineHeight = `${s.lineH}px`
       overlay.appendChild(span)
+      const next = segData[index + 1]
+      if (next) overlay.appendChild(document.createTextNode(next.line === s.line ? '\t' : '\n'))
       return { span, targetW: s.right - s.left }
     })
     const natW = made.map((m) => m.span.getBoundingClientRect().width)
@@ -233,25 +235,37 @@ export default function HwpPage({
     [setRef, registerEl, pageIndex]
   )
 
+  // 화면에서 충분히 멀어진 페이지는 실제 SVG/overlay DOM을 해제한다.
+  // 자연 크기는 보존해 placeholder 높이와 스크롤 위치가 흔들리지 않는다.
+  useEffect(() => {
+    if (inView) return
+    svgHostRef.current?.replaceChildren()
+    overlayRef.current?.replaceChildren()
+    svgElRef.current = null
+    setRendered(false)
+  }, [inView])
+
   // 가시 시 SVG 1회 렌더 + sanitize + 주입
   useEffect(() => {
     if (!inView || svgElRef.current) return
     const host = svgHostRef.current
     if (!host) return
+    setPageError(null)
 
     let svgStr: string
     try {
       svgStr = doc.renderPageSvg(pageIndex)
     } catch (err) {
       log.error(`${pageIndex + 1}쪽 렌더 실패`, err)
+      setPageError(`${pageIndex + 1}쪽을 렌더링할 수 없습니다.`)
       return
     }
 
-    // 비정상적으로 거대한 SVG는 sanitize+파싱이 메인스레드를 멈추므로 자리표시로 대체
+    // 비정상적으로 거대한 SVG는 sanitize+파싱 전에 차단하고 명시적인 페이지 오류를 표시한다.
     if (svgStr.length > MAX_SVG_CHARS) {
-      log.warn(`${pageIndex + 1}쪽 SVG 과대(${svgStr.length}) — 표시 생략`)
+      log.warn(`${pageIndex + 1}쪽 SVG 과대(${svgStr.length}) — 표시 차단`)
       host.replaceChildren()
-      setRendered(true)
+      setPageError(`${pageIndex + 1}쪽이 안전한 렌더링 한도를 초과했습니다.`)
       return
     }
 
@@ -261,6 +275,7 @@ export default function HwpPage({
     if (!svg) {
       log.error(`${pageIndex + 1}쪽 SVG 파싱/정화 오류`)
       host.replaceChildren()
+      setPageError(`${pageIndex + 1}쪽의 안전한 SVG를 만들 수 없습니다.`)
       return
     }
     svg.style.display = 'block'
@@ -298,9 +313,18 @@ export default function HwpPage({
 
   return (
     <div className="hwp-page" ref={wrapRef} style={{ width, height }} data-page={pageIndex + 1}>
-      <div className="hwp-page__svg" ref={svgHostRef} />
-      <div className="hwp-textlayer" ref={overlayRef} />
-      {!rendered && <div className="hwp-page__placeholder">{pageIndex + 1}</div>}
+      <div className="hwp-page__svg" ref={svgHostRef} aria-hidden="true" />
+      <div
+        className="hwp-textlayer"
+        ref={overlayRef}
+        role="document"
+        aria-label={`${pageIndex + 1}쪽 텍스트`}
+      />
+      {pageError ? (
+        <div className="hwp-page__error" role="alert">{pageError}</div>
+      ) : (
+        !rendered && <div className="hwp-page__placeholder">{pageIndex + 1}</div>
+      )}
     </div>
   )
 }

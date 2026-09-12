@@ -2,11 +2,13 @@
   --bg: #1e1f22;
   --bg-elev: #2b2d31;
   --bg-stage: #313338;
-  --border: #3a3c41;
-  --text: #e6e7ea;
-  --text-dim: #a8abb2;
-  --accent: #3b82f6;
-  --accent-hover: #2f6fe0;
+  --border: #626872;
+  --control-border: #7c838e;
+  --text: #f1f2f4;
+  --text-dim: #c1c4ca;
+  --accent: #1d5fae;
+  --accent-hover: #174d8e;
+  --focus: #fbbf24;
   --danger: #ef4444;
   --radius: 8px;
   --toolbar-h: 48px;
@@ -37,14 +39,12 @@ body {
 
 /* 기본은 텍스트 선택 가능(문서 내용 복사). UI chrome 만 선택 금지. */
 .toolbar,
-.statusbar,
 .modal,
 .empty,
 .pdf-toolbar,
 .hwp-toolbar,
 .docx-toolbar,
 .xlsx-tabs,
-.xlsx-banner,
 .pdf-thumbs,
 .dropzone__overlay,
 .dropzone__diag,
@@ -102,6 +102,9 @@ body {
 }
 .toolbar__actions {
   flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* ── Buttons / badges ────────────────────── */
@@ -109,7 +112,7 @@ body {
   font: inherit;
   color: var(--text);
   background: var(--bg-stage);
-  border: 1px solid var(--border);
+  border: 1px solid var(--control-border);
   border-radius: var(--radius);
   padding: 6px 14px;
   cursor: pointer;
@@ -149,7 +152,7 @@ body {
   line-height: 1;
   color: var(--text);
   background: transparent;
-  border: 1px solid transparent;
+  border: 1px solid var(--control-border);
   border-radius: 6px;
   padding: 5px 9px;
   cursor: pointer;
@@ -157,16 +160,17 @@ body {
 .iconbtn:hover {
   background: var(--bg-stage);
 }
-.iconbtn--active {
-  background: rgba(59, 130, 246, 0.22);
-  border-color: rgba(59, 130, 246, 0.4);
+.iconbtn--active,
+.iconbtn[aria-pressed='true'] {
+  background: rgba(29, 95, 174, 0.46);
+  border-color: #8dbcf2;
 }
 .textbtn {
   font: inherit;
   font-size: 13px;
   color: var(--text);
   background: transparent;
-  border: 1px solid var(--border);
+  border: 1px solid var(--control-border);
   border-radius: 6px;
   padding: 5px 10px;
   cursor: pointer;
@@ -174,10 +178,24 @@ body {
 .textbtn:hover {
   background: var(--bg-stage);
 }
-.textbtn--active {
-  background: rgba(59, 130, 246, 0.22);
-  border-color: rgba(59, 130, 246, 0.4);
-  color: #cfe0ff;
+.textbtn--active,
+.textbtn[aria-pressed='true'] {
+  background: rgba(29, 95, 174, 0.46);
+  border-color: #8dbcf2;
+  color: #f1f6ff;
+}
+
+:where(button, input, [tabindex]:not([tabindex='-1']), a[href]):focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+:where(.btn, .iconbtn, .textbtn):disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+:where(.btn, .iconbtn, .textbtn):disabled:hover {
+  background: initial;
 }
 
 /* ── Stage / DropZone ────────────────────── */
@@ -450,76 +468,52 @@ body {
   white-space: nowrap;
 }
 
-/* ── 하단 상시 배너 바 ───────────────────── */
-.statusbar {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  height: 30px;
-  padding: 0 8px;
-  background: var(--bg-elev);
-  border-top: 1px solid var(--border);
-}
-.statusbar__banner {
-  display: flex;
-  align-items: center;
-  background: transparent;
-  border: none;
-  border-radius: 6px;
-  padding: 3px 6px;
-  cursor: pointer;
-}
-.statusbar__banner:hover {
-  background: var(--bg-stage);
-}
-.statusbar__img {
-  display: block;
-  height: 22px;
-  width: auto;
-}
-
-/* ── 종료 확인 모달 (배너 포함) ───────────── */
+/* ── 종료 확인 모달 ──────────────────────── */
 .modal {
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: rgba(0, 0, 0, 0.55);
-  display: flex;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.62);
+  border: 0;
   align-items: center;
   justify-content: center;
+}
+.modal:not([open]) {
+  display: none;
+}
+.modal[open] {
+  display: flex;
+}
+.modal::backdrop {
+  background: transparent;
 }
 .modal__panel {
   width: min(420px, 86vw);
   background: var(--bg-elev);
-  border: 1px solid var(--border);
+  border: 1px solid var(--control-border);
   border-radius: 12px;
-  padding: 20px;
+  padding: 22px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-}
-.modal__banner {
-  display: block;
-  padding: 0;
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: border-color 0.12s;
-}
-.modal__banner:hover {
-  border-color: var(--accent);
-}
-.modal__banner-img {
-  display: block;
-  width: 100%;
-  height: auto;
 }
 .modal__title {
   margin: 0;
-  font-size: 16px;
+  font-size: 18px;
+  text-align: center;
+}
+.modal__description {
+  margin: 0;
+  color: var(--text-dim);
+  line-height: 1.5;
   text-align: center;
 }
 .modal__actions {
@@ -527,17 +521,44 @@ body {
   justify-content: flex-end;
   gap: 8px;
 }
+.update-dialog__panel {
+  width: min(500px, 88vw);
+}
+.update-dialog__status {
+  min-height: 44px;
+  color: var(--text);
+  background: var(--bg-stage);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  line-height: 1.45;
+}
+.update-dialog__status--error {
+  color: #ffe1a8;
+  border-color: #b7791f;
+  background: #35260d;
+}
+.update-dialog__progress {
+  display: grid;
+  grid-template-columns: auto minmax(120px, 1fr);
+  align-items: center;
+  gap: 10px;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+.update-dialog__progress progress {
+  width: 100%;
+  accent-color: var(--accent);
+}
 
 /* ── 인쇄: 앱 chrome 숨기고 문서 영역만 ───── */
 @media print {
   .toolbar,
-  .statusbar,
   .modal,
   .pdf-toolbar,
   .hwp-toolbar,
   .docx-toolbar,
   .xlsx-tabs,
-  .xlsx-banner,
   .pptx-overlay,
   .dropzone__overlay {
     display: none !important;
@@ -571,4 +592,54 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #5a5d62;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .btn,
+  .iconbtn,
+  .textbtn,
+  input,
+  .recent__item,
+  .empty__format,
+  .pdf-thumb,
+  .xlsx-tab,
+  .modal__panel,
+  .update-dialog__status,
+  .update-dialog__progress progress {
+    border: 1px solid ButtonText;
+  }
+
+  .btn--primary,
+  [aria-pressed='true'],
+  [aria-selected='true'],
+  [aria-current='page'] {
+    color: HighlightText;
+    background: Highlight;
+    border-color: Highlight;
+    forced-color-adjust: none;
+  }
+
+  :where(button, input, [tabindex]:not([tabindex='-1']), a[href]):focus-visible {
+    outline-color: Highlight;
+  }
+
+  .dropzone__card {
+    border-color: Highlight;
+  }
+
+  .modal {
+    background: Canvas;
+  }
 }

@@ -71,11 +71,26 @@ export default function PptxViewer({ doc }: ViewerProps) {
   }, [doc])
 
   return (
-    <div className="pptx">
-      <div className="pptx-host" ref={hostRef} />
-      {status === 'loading' && <div className="pptx-overlay">PowerPoint 불러오는 중…</div>}
+    <div className="pptx" aria-busy={status === 'loading'}>
+      <div
+        className="pptx-host"
+        ref={hostRef}
+        role="region"
+        aria-label="PowerPoint 슬라이드"
+        tabIndex={0}
+      />
+      {status === 'loading' && (
+        <div className="pptx-overlay" role="status" aria-live="polite" aria-atomic="true">
+          PowerPoint 불러오는 중…
+        </div>
+      )}
       {status === 'error' && (
-        <div className="pptx-overlay pptx-overlay--error">
+        <div
+          className="pptx-overlay pptx-overlay--error"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+        >
           <div className="pptx-overlay__icon" aria-hidden>
             ⚠️
           </div>
