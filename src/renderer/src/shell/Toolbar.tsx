@@ -29,6 +29,18 @@ export default function Toolbar({ fileName, format, onOpen, onUpdate, onClose }:
       </div>
 
       <div className="toolbar__actions" role="group" aria-label="문서 및 앱 작업">
+        <button
+          type="button"
+          className="btn"
+          title="자매 제품 — 프리미어 컷편집 가속기"
+          onClick={() => {
+            void window.api.openExternal(
+              'https://www.offcut.dev/?utm_source=ssakssak_hangeul&utm_medium=app_brand',
+            )
+          }}
+        >
+          오프컷
+        </button>
         {onUpdate && (
           <button type="button" className="btn" onClick={onUpdate} title="소프트웨어 업데이트">
             업데이트
