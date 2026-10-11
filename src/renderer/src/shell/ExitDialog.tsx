@@ -87,6 +87,28 @@ export default function ExitDialog({ onBeforeOpen }: Props) {
         <p id={DESCRIPTION_ID} className="modal__description">
           열어 둔 문서는 변경하지 않으며 뷰어만 종료합니다.
         </p>
+        <button
+          type="button"
+          className="promo-card"
+          onClick={() =>
+            void window.api.openExternal(
+              'https://www.offcut.dev/?utm_source=ssakssak_hangeul&utm_medium=exit_ad',
+            )
+          }
+          title="자매 제품 — 프리미어 컷편집 가속기"
+        >
+          <span className="promo-card__tag">AD</span>
+          <span className="promo-card__badge">O</span>
+          <span className="promo-card__body">
+            <span className="promo-card__title">
+              OFFCUT STUDIO <span>자매 제품</span>
+            </span>
+            <span className="promo-card__desc">
+              긴 영상, 컷만 쏙쏙 뽑는 프리미어 편집 가속기
+            </span>
+          </span>
+          <span className="promo-card__cta">보러가기</span>
+        </button>
         <div className="modal__actions">
           <button ref={cancelButtonRef} type="button" className="btn" onClick={cancelExit}>
             취소
