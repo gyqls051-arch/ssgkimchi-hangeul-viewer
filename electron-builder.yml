@@ -13,8 +13,9 @@ directories:
   output: release
   buildResources: resources
 
-# 서명 입력이 없거나 잘못되면 unsigned fallback 대신 패키징을 실패시킨다.
-forceCodeSigning: true
+# 코드서명 인증서 확보 전까지 미서명 빌드. 인증서 확보 시 release-policy.json의
+# windows.signing을 true로 올리고 아래 서명 옵션을 되살린다.
+forceCodeSigning: false
 
 # 설치파일 최대 압축
 compression: maximum
@@ -53,13 +54,8 @@ win:
       arch:
         - x64
   icon: resources/icon.ico
-  signExecutable: true
-  verifyUpdateCodeSignature: true
-  signtoolOptions:
-    # release-policy.json과 실제 인증서의 simple subject name으로 함께 교체해야 한다.
-    publisherName: REPLACE_WITH_CERTIFICATE_SIMPLE_NAME
-    signingHashAlgorithms:
-      - sha256
+  signExecutable: false
+  verifyUpdateCodeSignature: false
   # 더블클릭 파일 연결
   fileAssociations:
     - ext: hwp

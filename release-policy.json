@@ -44,6 +44,7 @@
   },
   "windows": {
     "productExecutable": "싹싹김치 한글뷰어.exe",
+    "signing": false,
     "publisherName": "REPLACE_WITH_CERTIFICATE_SIMPLE_NAME",
     "certificateSubject": "REPLACE_WITH_EXACT_CERTIFICATE_SUBJECT",
     "certificateThumbprint": "REPLACE_WITH_NORMALIZED_CERTIFICATE_THUMBPRINT",
