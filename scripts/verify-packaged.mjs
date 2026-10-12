@@ -30,8 +30,12 @@ for (const name of requiredResources) {
   }
 }
 
+const signingRequired = JSON.parse(
+  readFileSync(join(root, 'release-policy.json'), 'utf8'),
+).windows?.signing !== false
+
 const appUpdate = readFileSync(join(resources, 'app-update.yml'), 'utf8')
-if (!/^publisherName:(?:\s+.+|\s*\r?\n\s+-\s+.+)$/mu.test(appUpdate)) {
+if (signingRequired && !/^publisherName:(?:\s+.+|\s*\r?\n\s+-\s+.+)$/mu.test(appUpdate)) {
   throw new Error('Packaged app-update.yml has no publisherName')
 }
 if (/REPLACE_|CONFIGURE_|CHANGEME|TODO/iu.test(appUpdate)) {

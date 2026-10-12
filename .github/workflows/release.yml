@@ -26,6 +26,7 @@ jobs:
       installer: ${{ steps.release.outputs.installer }}
       blockmap: ${{ steps.release.outputs.blockmap }}
       product_executable: ${{ steps.release.outputs.product_executable }}
+      signing: ${{ steps.release.outputs.signing }}
     steps:
       - name: Check out complete tag history
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -60,7 +61,7 @@ jobs:
     uses: ./.github/workflows/ci.yml
 
   build_windows:
-    name: Build and sign Windows x64 NSIS
+    name: Build Windows x64 NSIS
     needs:
       - validate
       - quality
@@ -105,14 +106,21 @@ jobs:
         shell: pwsh
         run: if (Test-Path -LiteralPath 'release') { Remove-Item -LiteralPath 'release' -Recurse -Force }
 
-      - name: Build and sign without publishing
+      - name: Build without publishing
         shell: pwsh
         env:
           CSC_LINK: ${{ secrets.WINDOWS_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CSC_KEY_PASSWORD }}
+          SIGNING_POLICY: ${{ needs.validate.outputs.signing }}
         run: |
-          if ([string]::IsNullOrWhiteSpace($env:CSC_LINK)) { throw 'WINDOWS_CSC_LINK is required' }
-          if ([string]::IsNullOrWhiteSpace($env:CSC_KEY_PASSWORD)) { throw 'WINDOWS_CSC_KEY_PASSWORD is required' }
+          if ($env:SIGNING_POLICY -eq 'true') {
+            if ([string]::IsNullOrWhiteSpace($env:CSC_LINK)) { throw 'WINDOWS_CSC_LINK is required' }
+            if ([string]::IsNullOrWhiteSpace($env:CSC_KEY_PASSWORD)) { throw 'WINDOWS_CSC_KEY_PASSWORD is required' }
+          } else {
+            Remove-Item Env:CSC_LINK -ErrorAction SilentlyContinue
+            Remove-Item Env:CSC_KEY_PASSWORD -ErrorAction SilentlyContinue
+            Write-Host 'Unsigned build per release policy (windows.signing=false)'
+          }
           npm run package:win
           if ($LASTEXITCODE -ne 0) { throw 'Windows package build failed' }
 
@@ -120,11 +128,11 @@ jobs:
         shell: pwsh
         run: npm run verify:packaged
 
-      - name: Upload signed build for independent verification
+      - name: Upload build for independent verification
         id: upload
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: signed-windows-${{ needs.validate.outputs.commit }}
+          name: unsigned-windows-${{ needs.validate.outputs.commit }}
           path: |
             release/${{ needs.validate.outputs.installer }}
             release/${{ needs.validate.outputs.blockmap }}
@@ -136,7 +144,7 @@ jobs:
           compression-level: 0
 
   verify:
-    name: Independently verify signed release
+    name: Independently verify release
     needs:
       - validate
       - quality
@@ -176,13 +184,14 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
-      - name: Download signed build
+      - name: Download build
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: signed-windows-${{ needs.validate.outputs.commit }}
+          name: unsigned-windows-${{ needs.validate.outputs.commit }}
           path: release
 
       - name: Verify Authenticode identities and timestamps
+        if: needs.validate.outputs.signing == 'true'
         shell: pwsh
         env:
           INSTALLER_NAME: ${{ needs.validate.outputs.installer }}
@@ -196,18 +205,28 @@ jobs:
 
       - name: Prepare deterministic release assets
         shell: pwsh
-        run: >-
-          npm run verify:release -- prepare
-          --release-dir release
-          --assets-dir release-assets
-          --signature-report "$env:RUNNER_TEMP/verified-signatures.json"
-          --tag "${{ needs.validate.outputs.tag }}"
-          --sha "${{ needs.validate.outputs.commit }}"
+        env:
+          SIGNING_POLICY: ${{ needs.validate.outputs.signing }}
+        run: |
+          $vargs = @(
+            'prepare',
+            '--release-dir', 'release',
+            '--assets-dir', 'release-assets',
+            '--tag', '${{ needs.validate.outputs.tag }}',
+            '--sha', '${{ needs.validate.outputs.commit }}'
+          )
+          if ($env:SIGNING_POLICY -eq 'true') {
+            $vargs += @('--signature-report', (Join-Path $env:RUNNER_TEMP 'verified-signatures.json'))
+          }
+          # pwsh가 npm의 `--` 구분자를 네이티브 명령에 전달하지 않아 npm이 스크립트
+          # 인자를 자체 플래그로 해석하는 문제가 있어 node를 직접 호출한다.
+          node scripts/verify-release-artifacts.mjs @vargs
+          if ($LASTEXITCODE -ne 0) { throw 'Release asset preparation failed' }
 
       - name: Reverify exact release asset set
         shell: pwsh
         run: >-
-          npm run verify:release -- verify
+          node scripts/verify-release-artifacts.mjs verify
           --assets-dir release-assets
           --tag "${{ needs.validate.outputs.tag }}"
           --sha "${{ needs.validate.outputs.commit }}"
@@ -338,7 +357,9 @@ jobs:
           }
 
           verify_remote_tag
-          if gh release view "$RELEASE_TAG" --repo "$REPOSITORY" >/dev/null 2>&1; then
+          # /releases/tags/{tag} 는 draft를 반환하지 않으므로 목록 조회로 검사한다.
+          existing="$(gh api "repos/$REPOSITORY/releases?per_page=50" --jq "[.[] | select(.tag_name == \"$RELEASE_TAG\")] | length")"
+          if test "$existing" -ne 0; then
             echo "A release already exists for $RELEASE_TAG; refusing to mutate it." >&2
             exit 1
           fi
@@ -354,9 +375,10 @@ jobs:
             --verify-tag \
             --draft \
             --title "$RELEASE_TAG" \
-            --notes "Signed Windows x64 NSIS release for commit $RELEASE_COMMIT."
+            --notes "Windows x64 NSIS release for commit $RELEASE_COMMIT."
 
-          release_json="$(gh api "repos/$REPOSITORY/releases/tags/$RELEASE_TAG")"
+          # 방금 만든 draft는 tags 엔드포인트가 반환하지 않으므로 목록에서 찾는다.
+          release_json="$(gh api "repos/$REPOSITORY/releases?per_page=50" --jq "[.[] | select(.tag_name == \"$RELEASE_TAG\")] | .[0]")"
           release_id="$(jq -er '.id' <<<"$release_json")"
           test "$(jq -er '.draft' <<<"$release_json")" = 'true'
           test "$(jq -er '.prerelease' <<<"$release_json")" = 'false'
@@ -405,3 +427,8 @@ jobs:
             -f make_latest=true)"
           test "$(jq -er '.draft' <<<"$published")" = 'false'
           test "$(jq -er '.prerelease' <<<"$published")" = 'false'
+
+          # 공홈의 releases/latest/download 고정 파일명 링크용 추가 자산.
+          fixed='ssgkimchi-hangeul-viewer-setup.exe'
+          cp "release-assets/$INSTALLER_NAME" "$fixed"
+          gh release upload "$RELEASE_TAG" "$fixed" --repo "$REPOSITORY" --clobber

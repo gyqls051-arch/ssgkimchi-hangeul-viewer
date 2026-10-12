@@ -2,7 +2,7 @@
   "$schema": "https://cyclonedx.org/schema/bom-1.6.schema.json",
   "bomFormat": "CycloneDX",
   "specVersion": "1.6",
-  "serialNumber": "urn:uuid:cfc64552-e88f-5577-bfab-ac9c89a91576",
+  "serialNumber": "urn:uuid:6816d751-60bd-55d4-8be4-e680e6388e77",
   "version": 1,
   "metadata": {
     "tools": {
@@ -16,10 +16,10 @@
     },
     "component": {
       "type": "application",
-      "bom-ref": "app:ssgkimchi-hangeul-viewer@0.2.0",
+      "bom-ref": "app:ssgkimchi-hangeul-viewer@0.2.2",
       "name": "ssgkimchi-hangeul-viewer",
-      "version": "0.2.0",
-      "purl": "pkg:npm/ssgkimchi-hangeul-viewer@0.2.0",
+      "version": "0.2.2",
+      "purl": "pkg:npm/ssgkimchi-hangeul-viewer@0.2.2",
       "copyright": "Copyright (c) 2026 싹싹김치",
       "licenses": [
         {
@@ -40,7 +40,7 @@
       },
       {
         "name": "ssgkimchi:inventory:fingerprint",
-        "value": "cfc64552e88fa577bfabac9c89a915768e77180662e8b6160a887dd4d96cb5ae"
+        "value": "6816d75160bd05d4cbe4e680e6388e77823b6bb101d0e12b79cd858eea579edf"
       },
       {
         "name": "ssgkimchi:inventory:lockfile",
@@ -48,7 +48,7 @@
       },
       {
         "name": "ssgkimchi:inventory:lockfile-sha256",
-        "value": "4e802ee4915cb2cb9e3d94cc60c944dba0872d844356318b368f7a1960302931"
+        "value": "06afd309788278ff176de51ee581039fa8d9b99f012e18728e65b6dfdd4cbea2"
       },
       {
         "name": "ssgkimchi:inventory:scope",
@@ -91,16 +91,8 @@
           "value": "Chromium and its internal third-party components are not expanded into npm components; the Electron runtime notice is authoritative."
         },
         {
-          "name": "ssgkimchi:notices:bytes",
-          "value": "20008860"
-        },
-        {
           "name": "ssgkimchi:notices:path",
           "value": "node_modules/electron/dist/LICENSES.chromium.html"
-        },
-        {
-          "name": "ssgkimchi:notices:sha256",
-          "value": "ca0a3f71df977796bf39a99472783c1ce9378bf4d8f4142a95048c3843980415"
         }
       ]
     },
@@ -3549,7 +3541,7 @@
   ],
   "dependencies": [
     {
-      "ref": "app:ssgkimchi-hangeul-viewer@0.2.0",
+      "ref": "app:ssgkimchi-hangeul-viewer@0.2.2",
       "dependsOn": [
         "npm:@rhwp/core@0.7.19:node_modules/@rhwp/core",
         "npm:docx-preview@0.3.7:node_modules/docx-preview",
