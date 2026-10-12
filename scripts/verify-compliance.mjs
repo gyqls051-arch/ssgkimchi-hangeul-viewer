@@ -2,7 +2,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, resolve, sep } from 'node:path'
 import {
-  MIT_LICENSE_TEXT,
+  FREEWARE_LICENSE_TEXT,
   NOTICE_PATH,
   REPO_ROOT,
   SBOM_PATH,
@@ -160,7 +160,7 @@ try {
   checkGenerated(SBOM_PATH, generateSbom(inventory))
 
   const license = readRepositoryText('LICENSE')
-  check(license === MIT_LICENSE_TEXT, 'LICENSE must be the approved repository-intent MIT text for Copyright (c) 2026 싹싹김치')
+  check(license === FREEWARE_LICENSE_TEXT, 'LICENSE must be the approved 싹싹김치 freeware text for Copyright (c) 2026 싹싹김치')
 
   const packageJson = JSON.parse(readRepositoryText('package.json'))
   const lock = JSON.parse(readRepositoryText('package-lock.json'))
