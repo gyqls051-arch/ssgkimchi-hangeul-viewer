@@ -4,9 +4,9 @@ GENERATED FILE — DO NOT EDIT BY HAND.
 Regenerate with: node scripts/generate-third-party-notices.mjs
 Verify with:     node scripts/generate-third-party-notices.mjs --check
 
-Application: ssgkimchi-hangeul-viewer@0.2.0
-Lockfile SHA-256: 4e802ee4915cb2cb9e3d94cc60c944dba0872d844356318b368f7a1960302931
-Inventory fingerprint: cfc64552e88fa577bfabac9c89a915768e77180662e8b6160a887dd4d96cb5ae
+Application: ssgkimchi-hangeul-viewer@0.2.2
+Lockfile SHA-256: 06afd309788278ff176de51ee581039fa8d9b99f012e18728e65b6dfdd4cbea2
+Inventory fingerprint: 6816d75160bd05d4cbe4e680e6388e77823b6bb101d0e12b79cd858eea579edf
 
 SCOPE AND LIMITATIONS
 
@@ -44,8 +44,6 @@ ELECTRON / CHROMIUM NOTICE REFERENCE
 ==============================================================================
 Component: Chromium runtime embedded in Electron (bundled with Electron 42.10.1)
 Source notice: node_modules/electron/dist/LICENSES.chromium.html
-Source notice size: 20008860 bytes
-Source notice SHA-256: ca0a3f71df977796bf39a99472783c1ce9378bf4d8f4142a95048c3843980415
 Runtime reference: LICENSES.chromium.html beside the packaged Electron executable.
 The large HTML notice is referenced rather than duplicated in this text file.
 Scope limitation: Chromium and its internal third-party components are not expanded into npm components; the Electron runtime notice is authoritative.

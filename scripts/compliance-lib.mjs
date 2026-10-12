@@ -378,7 +378,10 @@ function loadAssets(pdfjsVersion, rhwpVersion, electronVersion) {
   const cmapLicense = readRequiredText(cmapLicensePath)
   const rhwpWasm = readRequiredBuffer(rhwpWasmPath)
   const rhwpReadme = readRequiredText(rhwpReadmePath)
-  const chromiumNotice = readRequiredBuffer(chromiumNoticePath)
+  // 존재 검증만 한다. LICENSES.chromium.html 은 Electron dist 플랫폼 빌드마다
+  // 바이트가 달라(Windows/Linux 해시 불일치 확인) 생성 출력에 해시를 박으면
+  // 어느 호스트에서 --check 를 돌려도 stale 판정이 난다.
+  readRequiredBuffer(chromiumNoticePath)
 
   return [
     {
@@ -390,8 +393,6 @@ function loadAssets(pdfjsVersion, rhwpVersion, electronVersion) {
       ownerPath: ELECTRON_PACKAGE_PATH,
       licenseName: 'Multiple licenses; see LICENSES.chromium.html',
       noticePath: chromiumNoticePath,
-      noticeSha256: sha256(chromiumNotice),
-      noticeBytes: chromiumNotice.length,
       scopeNote:
         'Chromium and its internal third-party components are not expanded into npm components; the Electron runtime notice is authoritative.'
     },
@@ -726,8 +727,6 @@ export function generateThirdPartyNotices(inventory = loadComplianceInventory())
   lines.push('='.repeat(78))
   lines.push(`Component: ${chromium.name} (${chromium.version})`)
   lines.push(`Source notice: ${chromium.noticePath}`)
-  lines.push(`Source notice size: ${chromium.noticeBytes} bytes`)
-  lines.push(`Source notice SHA-256: ${chromium.noticeSha256}`)
   lines.push('Runtime reference: LICENSES.chromium.html beside the packaged Electron executable.')
   lines.push('The large HTML notice is referenced rather than duplicated in this text file.')
   lines.push(`Scope limitation: ${chromium.scopeNote}`)
@@ -856,11 +855,8 @@ function assetComponent(asset) {
     component.properties.push({ name: 'ssgkimchi:hash:scope', value: asset.hashScope })
   }
   if (asset.noticePath) {
-    component.properties.push(
-      { name: 'ssgkimchi:notices:path', value: asset.noticePath },
-      { name: 'ssgkimchi:notices:sha256', value: asset.noticeSha256 },
-      { name: 'ssgkimchi:notices:bytes', value: String(asset.noticeBytes) }
-    )
+    // dist 플랫폼 빌드마다 바이트가 달라 해시/크기는 기록하지 않는다 (상세: loadAssets 주석)
+    component.properties.push({ name: 'ssgkimchi:notices:path', value: asset.noticePath })
   }
   if (asset.licensePath) {
     component.properties.push(

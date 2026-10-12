@@ -230,12 +230,19 @@ function validatePolicy(policy) {
   assert(toolchain.node === '22.13.0' && toolchain.npm === '11.17.0', 'release toolchain versions are not exact')
   assert(/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/u.test(repository.slug), 'repository slug is invalid')
 
-  const publisherName = requireConfigured(windows.publisherName, 'policy.windows.publisherName')
-  const certificateSubject = requireConfigured(windows.certificateSubject, 'policy.windows.certificateSubject')
-  const certificateThumbprint = normalizeThumbprint(requireConfigured(windows.certificateThumbprint, 'policy.windows.certificateThumbprint'))
-  assert(certificateSubject.includes('='), 'certificate subject must be a full distinguished name')
-  assert(/^[0-9A-F]{40}$/u.test(certificateThumbprint), 'certificate thumbprint must normalize to 40 hexadecimal characters')
-  assert(windows.requireTimestamp === true, 'release policy must require Authenticode timestamps')
+  assert(typeof windows.signing === 'boolean', 'policy.windows.signing must be a boolean')
+  const signing = windows.signing
+  let publisherName = null
+  let certificateSubject = null
+  let certificateThumbprint = null
+  if (signing) {
+    publisherName = requireConfigured(windows.publisherName, 'policy.windows.publisherName')
+    certificateSubject = requireConfigured(windows.certificateSubject, 'policy.windows.certificateSubject')
+    certificateThumbprint = normalizeThumbprint(requireConfigured(windows.certificateThumbprint, 'policy.windows.certificateThumbprint'))
+    assert(certificateSubject.includes('='), 'certificate subject must be a full distinguished name')
+    assert(/^[0-9A-F]{40}$/u.test(certificateThumbprint), 'certificate thumbprint must normalize to 40 hexadecimal characters')
+    assert(windows.requireTimestamp === true, 'release policy must require Authenticode timestamps')
+  }
 
   for (const key of ['installerTemplate', 'blockmapTemplate', 'updateMetadata', 'checksums', 'manifest']) {
     assertBasename(artifacts[key], `policy.artifacts.${key}`)
@@ -252,6 +259,7 @@ function validatePolicy(policy) {
     publisherName,
     release,
     repository,
+    signing,
     target,
     toolchain,
     windows,
@@ -360,7 +368,9 @@ async function validateBlockmap(path, installerPath) {
 
 function validateAppUpdate(path, policyState) {
   const appUpdate = parseSimpleYamlMapping(path, 'app-update.yml')
-  const allowedKeys = ['owner', 'provider', 'publisherName', 'releaseType', 'repo', 'updaterCacheDirName'].sort(compareAscii)
+  const allowedKeys = ['owner', 'provider', 'releaseType', 'repo', 'updaterCacheDirName']
+  if (policyState.signing) allowedKeys.push('publisherName')
+  allowedKeys.sort(compareAscii)
   assert(JSON.stringify(Object.keys(appUpdate).sort(compareAscii)) === JSON.stringify(allowedKeys), 'app-update.yml contains missing or unexpected fields')
 
   const [owner, repo] = policyState.repository.slug.split('/')
@@ -369,8 +379,10 @@ function validateAppUpdate(path, policyState) {
   assert(appUpdate.repo === repo, 'app-update.yml repo does not match policy')
   assert(appUpdate.releaseType === 'release', 'app-update.yml releaseType must be release')
   assert(typeof appUpdate.updaterCacheDirName === 'string' && SAFE_BASENAME.test(appUpdate.updaterCacheDirName), 'app-update.yml updater cache name is invalid')
-  const publishers = Array.isArray(appUpdate.publisherName) ? appUpdate.publisherName : [appUpdate.publisherName]
-  assert(publishers.length === 1 && publishers[0] === policyState.publisherName, 'app-update.yml publisherName must exactly match release policy')
+  if (policyState.signing) {
+    const publishers = Array.isArray(appUpdate.publisherName) ? appUpdate.publisherName : [appUpdate.publisherName]
+    assert(publishers.length === 1 && publishers[0] === policyState.publisherName, 'app-update.yml publisherName must exactly match release policy')
+  }
 }
 
 function validateSignatureReport(path, policyState, names) {
@@ -434,7 +446,7 @@ async function validateBuildDirectory(releaseDir, policyState, names, version, s
   const latestData = validateLatest(latest, installer, names.installer, version)
   await validateBlockmap(blockmap, installer)
   validateAppUpdate(appUpdate, policyState)
-  validateSignatureReport(signatureReport, policyState, names)
+  if (policyState.signing) validateSignatureReport(signatureReport, policyState, names)
   return { installer, blockmap, latest, latestData }
 }
 
@@ -479,12 +491,15 @@ function expectedManifest({ root, assetsDir, names, policy, policyState, source,
       npm: policyState.toolchain.npm,
       electron: source.electronVersion,
     },
-    signing: {
-      publisherName: policyState.publisherName,
-      certificateSubject: policyState.certificateSubject,
-      certificateThumbprint: policyState.certificateThumbprint,
-      timestamped: true,
-    },
+    signing: policyState.signing
+      ? {
+          signed: true,
+          publisherName: policyState.publisherName,
+          certificateSubject: policyState.certificateSubject,
+          certificateThumbprint: policyState.certificateThumbprint,
+          timestamped: true,
+        }
+      : { signed: false },
     updateMetadata: {
       version: latest.version,
       path: latest.path,
@@ -576,14 +591,16 @@ async function main() {
   const names = artifactNames(policyState, source.version)
 
   if (mode === 'prepare') {
-    const signatureReport = values['signature-report']
-    requireString(signatureReport, '--signature-report')
+    let signatureReport = null
+    if (policyState.signing) {
+      signatureReport = resolve(root, requireString(values['signature-report'], '--signature-report'))
+    }
     const build = await validateBuildDirectory(
       releaseDir,
       policyState,
       names,
       source.version,
-      resolve(root, signatureReport),
+      signatureReport,
     )
     prepareOutputDirectory(assetsDir, root, releaseDir)
     for (const key of ['installer', 'blockmap', 'latest']) {

@@ -168,14 +168,21 @@ function validatePolicy(policy) {
   assert(target.builderTarget === 'nsis', 'release builder target must be nsis')
 
   const windows = requireRecord(policy.windows, 'policy.windows')
-  const publisherName = requireConfigured(windows.publisherName, 'policy.windows.publisherName')
-  const certificateSubject = requireConfigured(windows.certificateSubject, 'policy.windows.certificateSubject')
-  assert(certificateSubject.includes('='), 'certificate subject must be the exact full distinguished name')
-  const certificateThumbprint = normalizedThumbprint(
-    requireConfigured(windows.certificateThumbprint, 'policy.windows.certificateThumbprint'),
-  )
-  assert(/^[0-9A-F]{40}$/u.test(certificateThumbprint), 'certificate thumbprint must normalize to 40 hexadecimal characters')
-  assert(windows.requireTimestamp === true, 'Authenticode timestamps must be required')
+  assert(typeof windows.signing === 'boolean', 'policy.windows.signing must be a boolean')
+  const signing = windows.signing
+  let publisherName = null
+  let certificateSubject = null
+  let certificateThumbprint = null
+  if (signing) {
+    publisherName = requireConfigured(windows.publisherName, 'policy.windows.publisherName')
+    certificateSubject = requireConfigured(windows.certificateSubject, 'policy.windows.certificateSubject')
+    assert(certificateSubject.includes('='), 'certificate subject must be the exact full distinguished name')
+    certificateThumbprint = normalizedThumbprint(
+      requireConfigured(windows.certificateThumbprint, 'policy.windows.certificateThumbprint'),
+    )
+    assert(/^[0-9A-F]{40}$/u.test(certificateThumbprint), 'certificate thumbprint must normalize to 40 hexadecimal characters')
+    assert(windows.requireTimestamp === true, 'Authenticode timestamps must be required')
+  }
   requireString(windows.productExecutable, 'policy.windows.productExecutable')
   assert(windows.productExecutable.toLowerCase().endsWith('.exe'), 'product executable must be an .exe file')
 
@@ -200,6 +207,7 @@ function validatePolicy(policy) {
     release,
     repository,
     repositorySlug,
+    signing,
     toolchain,
     windows,
   }
@@ -253,11 +261,17 @@ function validateBuilder(builder, packageName, policyState) {
   requireYamlScalar(builder, 'owner', owner)
   requireYamlScalar(builder, 'repo', repositoryName)
   requireYamlScalar(builder, 'target', 'nsis')
-  requireYamlScalar(builder, 'forceCodeSigning', 'true')
-  requireYamlScalar(builder, 'signExecutable', 'true')
-  requireYamlScalar(builder, 'verifyUpdateCodeSignature', 'true')
-  requireYamlScalar(builder, 'publisherName', policyState.publisherName)
-  assert(/^\s*-\s*sha256\s*(?:#.*)?$/mu.test(builder), 'electron-builder.yml must sign with SHA-256')
+  if (policyState.signing) {
+    requireYamlScalar(builder, 'forceCodeSigning', 'true')
+    requireYamlScalar(builder, 'signExecutable', 'true')
+    requireYamlScalar(builder, 'verifyUpdateCodeSignature', 'true')
+    requireYamlScalar(builder, 'publisherName', policyState.publisherName)
+    assert(/^\s*-\s*sha256\s*(?:#.*)?$/mu.test(builder), 'electron-builder.yml must sign with SHA-256')
+  } else {
+    requireYamlScalar(builder, 'forceCodeSigning', 'false')
+    requireYamlScalar(builder, 'signExecutable', 'false')
+    requireYamlScalar(builder, 'verifyUpdateCodeSignature', 'false')
+  }
   assert(/^\s*-\s*x64\s*(?:#.*)?$/mu.test(builder), 'electron-builder.yml must retain the x64 architecture')
   requireYamlScalar(builder, 'artifactName', policyState.artifacts.installerTemplate.replace('{version}', '${version}'))
   assert(new RegExp(`^\\s*productName:\\s*${escapeRegExp(policyState.windows.productExecutable.replace(/\.exe$/iu, ''))}\\s*$`, 'mu').test(builder), 'productName must match the product executable')
@@ -383,9 +397,10 @@ function main() {
     installer,
     blockmap,
     product_executable: policyState.windows.productExecutable,
-    publisher_name: policyState.publisherName,
-    certificate_subject: policyState.certificateSubject,
-    certificate_thumbprint: policyState.certificateThumbprint,
+    signing: String(policyState.signing),
+    publisher_name: policyState.publisherName ?? '',
+    certificate_subject: policyState.certificateSubject ?? '',
+    certificate_thumbprint: policyState.certificateThumbprint ?? '',
     release_environment: policyState.legal.approvalEnvironment,
   }
 

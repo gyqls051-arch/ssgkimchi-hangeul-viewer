@@ -31,3 +31,4 @@ Thumbs.db
 .idea/
 .claude/
 tests/fixtures/stress/
+release-assets/
